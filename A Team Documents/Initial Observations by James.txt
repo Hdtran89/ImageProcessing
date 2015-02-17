@@ -1,0 +1,49 @@
+Purpose:
+	Calculate centroid, velocity, and acceleration of droplet
+	Store results in csv (comma separated values) file
+
+Implementation TODO:
+	Multithreading
+	Output:
+		User-defined csv file name
+		Save processed images for user to view (might already be happening)
+		Don't give results that are relative to the number of pixels
+		Macro in the output that lets Excel automatically create the graphs
+	GUI:
+		Tooltips
+		Help button to explain what the user is doing and why they are doing it
+	
+Notes:
+	Last group lost time by having to change from C++ to C# a month into the project
+	Take early initiative
+	Code repetition is present throughout areas of the code
+	UI asks for time increment between frames rather than the probably more natural Frames Per Second of the camera
+	Possibly auto-determine the test area by determining the location of the needle and surface from the processed images (no test image required)
+	Width conversion from pixels to cm not implemented
+	Velocity and acceleration is given as either x or y velocities/accelerations. May want to give net velocity/acceleration
+	
+Program's Concepts:
+
+	Individual pixels are all determined to be either black or white, where air should be white and the base, needle, and droplet should be black.
+		grayscale values lower or equal to the user-defined graysensitivity value become black. Higher becomes white
+		For each pixel: grayscale = (int)((originalcolor.R * .3) + (originalcolor.G * .59) + (originalcolor.B * .11))
+		
+	"droplet area" is determined by the first all white row and the first all black row. The area between these two are the test area.
+	
+	boolbasearray is used to determine which pixels within the droplet area are part of the base. This is defined in the base test image
+	
+	boundingrange is user-defined and sets the distance away a droplet's pixel can be from the centroid and still be considered a part of the droplet. In the
+	user manual, it states that if the output centroid data seems random then adjust this number. This seems not so cool
+	
+	OuterPixels - list that contains the first and last black pixels in each column and each row that are not a part of the base (in boolbasearray). Thus outerpixels contains the bordering pixels of the droplet
+	
+	Outliers - list that contains the border pixels of the droplet that are within the bounding range. Outliers are determined by applying the bounding range to the outerpixels list and keeping what is within range
+	
+	Calculated on each frame
+	=============================
+	xcentroid/ycentroid - sums x/y values from the outliers and then is divided by the number of outliers.
+	
+	xvelocity/yvelocity - change in centroid's x/y positions from previous frame, divided by the amount of time between frames
+	
+	xacceleration/yacceleration - change in x/y velocity from the previous frame, divided by the amount of time between frames
+	=============================
