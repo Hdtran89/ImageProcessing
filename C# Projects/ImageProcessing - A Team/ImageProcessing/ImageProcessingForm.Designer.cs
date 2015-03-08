@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.currentImagePictureBox = new System.Windows.Forms.PictureBox();
             this.statusLabel = new System.Windows.Forms.Label();
             this.loadButton = new System.Windows.Forms.Button();
             this.runButton = new System.Windows.Forms.Button();
@@ -37,6 +37,10 @@
             this.unitsLabel = new System.Windows.Forms.Label();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.formControlsGroupBox = new System.Windows.Forms.GroupBox();
+            this.frameRateHeaderLabel = new System.Windows.Forms.Label();
+            this.rangeHeaderLabel = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.widthHeaderLabel = new System.Windows.Forms.Label();
             this.pauseButton = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -46,24 +50,21 @@
             this.imageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.widthHeaderLabel = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.rangeHeaderLabel = new System.Windows.Forms.Label();
-            this.frameRateHeaderLabel = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.loadImagesDialog = new System.Windows.Forms.FolderBrowserDialog();
+            ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.formControlsGroupBox.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // pictureBox1
+            // currentImagePictureBox
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(64, 36);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(521, 212);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
+            this.currentImagePictureBox.Location = new System.Drawing.Point(64, 46);
+            this.currentImagePictureBox.Name = "currentImagePictureBox";
+            this.currentImagePictureBox.Size = new System.Drawing.Size(521, 212);
+            this.currentImagePictureBox.TabIndex = 0;
+            this.currentImagePictureBox.TabStop = false;
             // 
             // statusLabel
             // 
@@ -82,6 +83,7 @@
             this.loadButton.TabIndex = 2;
             this.loadButton.Text = "Load";
             this.loadButton.UseVisualStyleBackColor = true;
+            this.loadButton.Click += new System.EventHandler(this.loadButton_Click);
             // 
             // runButton
             // 
@@ -141,6 +143,44 @@
             this.formControlsGroupBox.TabIndex = 8;
             this.formControlsGroupBox.TabStop = false;
             this.formControlsGroupBox.Text = "Controls";
+            // 
+            // frameRateHeaderLabel
+            // 
+            this.frameRateHeaderLabel.AutoSize = true;
+            this.frameRateHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.frameRateHeaderLabel.Location = new System.Drawing.Point(130, 30);
+            this.frameRateHeaderLabel.Name = "frameRateHeaderLabel";
+            this.frameRateHeaderLabel.Size = new System.Drawing.Size(62, 13);
+            this.frameRateHeaderLabel.TabIndex = 15;
+            this.frameRateHeaderLabel.Text = "Frame Rate";
+            // 
+            // rangeHeaderLabel
+            // 
+            this.rangeHeaderLabel.AutoSize = true;
+            this.rangeHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rangeHeaderLabel.Location = new System.Drawing.Point(370, 30);
+            this.rangeHeaderLabel.Name = "rangeHeaderLabel";
+            this.rangeHeaderLabel.Size = new System.Drawing.Size(39, 13);
+            this.rangeHeaderLabel.TabIndex = 14;
+            this.rangeHeaderLabel.Text = "Range";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(142, 20);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(0, 13);
+            this.label2.TabIndex = 13;
+            // 
+            // widthHeaderLabel
+            // 
+            this.widthHeaderLabel.AutoSize = true;
+            this.widthHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.widthHeaderLabel.Location = new System.Drawing.Point(251, 30);
+            this.widthHeaderLabel.Name = "widthHeaderLabel";
+            this.widthHeaderLabel.Size = new System.Drawing.Size(35, 13);
+            this.widthHeaderLabel.TabIndex = 12;
+            this.widthHeaderLabel.Text = "Width";
             // 
             // pauseButton
             // 
@@ -212,44 +252,6 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
             // 
-            // widthHeaderLabel
-            // 
-            this.widthHeaderLabel.AutoSize = true;
-            this.widthHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.widthHeaderLabel.Location = new System.Drawing.Point(251, 30);
-            this.widthHeaderLabel.Name = "widthHeaderLabel";
-            this.widthHeaderLabel.Size = new System.Drawing.Size(35, 13);
-            this.widthHeaderLabel.TabIndex = 12;
-            this.widthHeaderLabel.Text = "Width";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(142, 20);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(0, 13);
-            this.label2.TabIndex = 13;
-            // 
-            // rangeHeaderLabel
-            // 
-            this.rangeHeaderLabel.AutoSize = true;
-            this.rangeHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rangeHeaderLabel.Location = new System.Drawing.Point(370, 30);
-            this.rangeHeaderLabel.Name = "rangeHeaderLabel";
-            this.rangeHeaderLabel.Size = new System.Drawing.Size(39, 13);
-            this.rangeHeaderLabel.TabIndex = 14;
-            this.rangeHeaderLabel.Text = "Range";
-            // 
-            // frameRateHeaderLabel
-            // 
-            this.frameRateHeaderLabel.AutoSize = true;
-            this.frameRateHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.frameRateHeaderLabel.Location = new System.Drawing.Point(130, 30);
-            this.frameRateHeaderLabel.Name = "frameRateHeaderLabel";
-            this.frameRateHeaderLabel.Size = new System.Drawing.Size(62, 13);
-            this.frameRateHeaderLabel.TabIndex = 15;
-            this.frameRateHeaderLabel.Text = "Frame Rate";
-            // 
             // ImageProcessingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -258,12 +260,12 @@
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.formControlsGroupBox);
             this.Controls.Add(this.statusLabel);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.currentImagePictureBox);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "ImageProcessingForm";
             this.Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.formControlsGroupBox.ResumeLayout(false);
@@ -277,7 +279,7 @@
 
         #endregion
 
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox currentImagePictureBox;
         private System.Windows.Forms.Label statusLabel;
         private System.Windows.Forms.Button loadButton;
         private System.Windows.Forms.Button runButton;
@@ -299,6 +301,7 @@
         private System.Windows.Forms.Label rangeHeaderLabel;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label widthHeaderLabel;
+        private System.Windows.Forms.FolderBrowserDialog loadImagesDialog;
     }
 }
 
