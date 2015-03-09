@@ -32,15 +32,15 @@
             this.statusLabel = new System.Windows.Forms.Label();
             this.loadButton = new System.Windows.Forms.Button();
             this.runButton = new System.Windows.Forms.Button();
-            this.imageWidthTextBox = new System.Windows.Forms.TextBox();
+            this.baseNeedleHeightTextBox = new System.Windows.Forms.TextBox();
             this.unitsLabel = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.frameRateNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.formControlsGroupBox = new System.Windows.Forms.GroupBox();
             this.frameRateHeaderLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.widthHeaderLabel = new System.Windows.Forms.Label();
+            this.baseNeedleHeightLabel = new System.Windows.Forms.Label();
             this.pauseButton = new System.Windows.Forms.Button();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.runProgressBar = new System.Windows.Forms.ProgressBar();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,15 +49,15 @@
             this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadImagesDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
-            this.button1 = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.blackWhiteNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.calibrateButton = new System.Windows.Forms.Button();
+            this.blackWhiteCalibrationLabel = new System.Windows.Forms.Label();
+            this.fpsLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).BeginInit();
             this.formControlsGroupBox.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.blackWhiteNumericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // currentImagePictureBox
@@ -97,12 +97,12 @@
             this.runButton.Text = "Run";
             this.runButton.UseVisualStyleBackColor = true;
             // 
-            // imageWidthTextBox
+            // baseNeedleHeightTextBox
             // 
-            this.imageWidthTextBox.Location = new System.Drawing.Point(238, 52);
-            this.imageWidthTextBox.Name = "imageWidthTextBox";
-            this.imageWidthTextBox.Size = new System.Drawing.Size(55, 20);
-            this.imageWidthTextBox.TabIndex = 5;
+            this.baseNeedleHeightTextBox.Location = new System.Drawing.Point(238, 52);
+            this.baseNeedleHeightTextBox.Name = "baseNeedleHeightTextBox";
+            this.baseNeedleHeightTextBox.Size = new System.Drawing.Size(55, 20);
+            this.baseNeedleHeightTextBox.TabIndex = 5;
             // 
             // unitsLabel
             // 
@@ -113,28 +113,28 @@
             this.unitsLabel.TabIndex = 6;
             this.unitsLabel.Text = "cm";
             // 
-            // numericUpDown1
+            // frameRateNumericUpDown
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(103, 52);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(82, 20);
-            this.numericUpDown1.TabIndex = 7;
+            this.frameRateNumericUpDown.Location = new System.Drawing.Point(103, 52);
+            this.frameRateNumericUpDown.Name = "frameRateNumericUpDown";
+            this.frameRateNumericUpDown.Size = new System.Drawing.Size(82, 20);
+            this.frameRateNumericUpDown.TabIndex = 7;
             // 
             // formControlsGroupBox
             // 
-            this.formControlsGroupBox.Controls.Add(this.label3);
-            this.formControlsGroupBox.Controls.Add(this.label1);
-            this.formControlsGroupBox.Controls.Add(this.numericUpDown3);
+            this.formControlsGroupBox.Controls.Add(this.fpsLabel);
+            this.formControlsGroupBox.Controls.Add(this.blackWhiteCalibrationLabel);
+            this.formControlsGroupBox.Controls.Add(this.blackWhiteNumericUpDown);
             this.formControlsGroupBox.Controls.Add(this.frameRateHeaderLabel);
-            this.formControlsGroupBox.Controls.Add(this.button1);
+            this.formControlsGroupBox.Controls.Add(this.calibrateButton);
             this.formControlsGroupBox.Controls.Add(this.label2);
-            this.formControlsGroupBox.Controls.Add(this.widthHeaderLabel);
+            this.formControlsGroupBox.Controls.Add(this.baseNeedleHeightLabel);
             this.formControlsGroupBox.Controls.Add(this.pauseButton);
             this.formControlsGroupBox.Controls.Add(this.loadButton);
             this.formControlsGroupBox.Controls.Add(this.runButton);
-            this.formControlsGroupBox.Controls.Add(this.numericUpDown1);
+            this.formControlsGroupBox.Controls.Add(this.frameRateNumericUpDown);
             this.formControlsGroupBox.Controls.Add(this.unitsLabel);
-            this.formControlsGroupBox.Controls.Add(this.imageWidthTextBox);
+            this.formControlsGroupBox.Controls.Add(this.baseNeedleHeightTextBox);
             this.formControlsGroupBox.Location = new System.Drawing.Point(22, 474);
             this.formControlsGroupBox.Name = "formControlsGroupBox";
             this.formControlsGroupBox.Size = new System.Drawing.Size(607, 100);
@@ -160,15 +160,15 @@
             this.label2.Size = new System.Drawing.Size(0, 13);
             this.label2.TabIndex = 13;
             // 
-            // widthHeaderLabel
+            // baseNeedleHeightLabel
             // 
-            this.widthHeaderLabel.AutoSize = true;
-            this.widthHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.widthHeaderLabel.Location = new System.Drawing.Point(221, 30);
-            this.widthHeaderLabel.Name = "widthHeaderLabel";
-            this.widthHeaderLabel.Size = new System.Drawing.Size(104, 13);
-            this.widthHeaderLabel.TabIndex = 12;
-            this.widthHeaderLabel.Text = "Base/Needle Height";
+            this.baseNeedleHeightLabel.AutoSize = true;
+            this.baseNeedleHeightLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.baseNeedleHeightLabel.Location = new System.Drawing.Point(221, 30);
+            this.baseNeedleHeightLabel.Name = "baseNeedleHeightLabel";
+            this.baseNeedleHeightLabel.Size = new System.Drawing.Size(104, 13);
+            this.baseNeedleHeightLabel.TabIndex = 12;
+            this.baseNeedleHeightLabel.Text = "Base/Needle Height";
             // 
             // pauseButton
             // 
@@ -180,13 +180,13 @@
             this.pauseButton.Text = "| |";
             this.pauseButton.UseVisualStyleBackColor = true;
             // 
-            // progressBar1
+            // runProgressBar
             // 
-            this.progressBar1.Location = new System.Drawing.Point(190, 434);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(395, 23);
-            this.progressBar1.TabIndex = 9;
-            this.progressBar1.Value = 4;
+            this.runProgressBar.Location = new System.Drawing.Point(190, 434);
+            this.runProgressBar.Name = "runProgressBar";
+            this.runProgressBar.Size = new System.Drawing.Size(395, 23);
+            this.runProgressBar.TabIndex = 9;
+            this.runProgressBar.Value = 4;
             // 
             // menuStrip1
             // 
@@ -241,57 +241,57 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
             // 
-            // numericUpDown3
+            // blackWhiteNumericUpDown
             // 
-            this.numericUpDown3.Location = new System.Drawing.Point(346, 52);
-            this.numericUpDown3.Maximum = new decimal(new int[] {
+            this.blackWhiteNumericUpDown.Location = new System.Drawing.Point(346, 52);
+            this.blackWhiteNumericUpDown.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown3.TabIndex = 15;
-            this.numericUpDown3.Value = new decimal(new int[] {
+            this.blackWhiteNumericUpDown.Name = "blackWhiteNumericUpDown";
+            this.blackWhiteNumericUpDown.Size = new System.Drawing.Size(46, 20);
+            this.blackWhiteNumericUpDown.TabIndex = 15;
+            this.blackWhiteNumericUpDown.Value = new decimal(new int[] {
             32,
             0,
             0,
             0});
             // 
-            // button1
+            // calibrateButton
             // 
-            this.button1.Location = new System.Drawing.Point(399, 51);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(65, 23);
-            this.button1.TabIndex = 14;
-            this.button1.Text = "Calibrate";
-            this.button1.UseVisualStyleBackColor = true;
+            this.calibrateButton.Location = new System.Drawing.Point(399, 51);
+            this.calibrateButton.Name = "calibrateButton";
+            this.calibrateButton.Size = new System.Drawing.Size(65, 23);
+            this.calibrateButton.TabIndex = 14;
+            this.calibrateButton.Text = "Calibrate";
+            this.calibrateButton.UseVisualStyleBackColor = true;
             // 
-            // label1
+            // blackWhiteCalibrationLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(345, 30);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(119, 13);
-            this.label1.TabIndex = 16;
-            this.label1.Text = "Black/White Calibration";
+            this.blackWhiteCalibrationLabel.AutoSize = true;
+            this.blackWhiteCalibrationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.blackWhiteCalibrationLabel.Location = new System.Drawing.Point(345, 30);
+            this.blackWhiteCalibrationLabel.Name = "blackWhiteCalibrationLabel";
+            this.blackWhiteCalibrationLabel.Size = new System.Drawing.Size(119, 13);
+            this.blackWhiteCalibrationLabel.TabIndex = 16;
+            this.blackWhiteCalibrationLabel.Text = "Black/White Calibration";
             // 
-            // label3
+            // fpsLabel
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(187, 56);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(27, 13);
-            this.label3.TabIndex = 17;
-            this.label3.Text = "FPS";
+            this.fpsLabel.AutoSize = true;
+            this.fpsLabel.Location = new System.Drawing.Point(187, 56);
+            this.fpsLabel.Name = "fpsLabel";
+            this.fpsLabel.Size = new System.Drawing.Size(27, 13);
+            this.fpsLabel.TabIndex = 17;
+            this.fpsLabel.Text = "FPS";
             // 
             // ImageProcessingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(665, 587);
-            this.Controls.Add(this.progressBar1);
+            this.ClientSize = new System.Drawing.Size(665, 586);
+            this.Controls.Add(this.runProgressBar);
             this.Controls.Add(this.formControlsGroupBox);
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.currentImagePictureBox);
@@ -300,12 +300,12 @@
             this.Name = "ImageProcessingForm";
             this.Text = "Image Processing";
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).EndInit();
             this.formControlsGroupBox.ResumeLayout(false);
             this.formControlsGroupBox.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.blackWhiteNumericUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -317,11 +317,11 @@
         private System.Windows.Forms.Label statusLabel;
         private System.Windows.Forms.Button loadButton;
         private System.Windows.Forms.Button runButton;
-        private System.Windows.Forms.TextBox imageWidthTextBox;
+        private System.Windows.Forms.TextBox baseNeedleHeightTextBox;
         private System.Windows.Forms.Label unitsLabel;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown frameRateNumericUpDown;
         private System.Windows.Forms.GroupBox formControlsGroupBox;
-        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.ProgressBar runProgressBar;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.Button pauseButton;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
@@ -332,12 +332,12 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Label frameRateHeaderLabel;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label widthHeaderLabel;
+        private System.Windows.Forms.Label baseNeedleHeightLabel;
         private System.Windows.Forms.FolderBrowserDialog loadImagesDialog;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label fpsLabel;
+        private System.Windows.Forms.Label blackWhiteCalibrationLabel;
+        private System.Windows.Forms.NumericUpDown blackWhiteNumericUpDown;
+        private System.Windows.Forms.Button calibrateButton;
     }
 }
 
