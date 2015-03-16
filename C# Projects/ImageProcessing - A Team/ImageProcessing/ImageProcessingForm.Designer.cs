@@ -36,12 +36,16 @@
             this.unitsLabel = new System.Windows.Forms.Label();
             this.frameRateNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.formControlsGroupBox = new System.Windows.Forms.GroupBox();
+            this.fpsLabel = new System.Windows.Forms.Label();
+            this.blackWhiteCalibrationLabel = new System.Windows.Forms.Label();
+            this.blackWhiteNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.frameRateHeaderLabel = new System.Windows.Forms.Label();
+            this.calibrateButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.baseNeedleHeightLabel = new System.Windows.Forms.Label();
             this.pauseButton = new System.Windows.Forms.Button();
             this.runProgressBar = new System.Windows.Forms.ProgressBar();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,15 +53,11 @@
             this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadImagesDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.blackWhiteNumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.calibrateButton = new System.Windows.Forms.Button();
-            this.blackWhiteCalibrationLabel = new System.Windows.Forms.Label();
-            this.fpsLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).BeginInit();
             this.formControlsGroupBox.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.blackWhiteNumericUpDown)).BeginInit();
+            this.menuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // currentImagePictureBox
@@ -74,9 +74,9 @@
             this.statusLabel.AutoSize = true;
             this.statusLabel.Location = new System.Drawing.Point(61, 441);
             this.statusLabel.Name = "statusLabel";
-            this.statusLabel.Size = new System.Drawing.Size(98, 13);
+            this.statusLabel.Size = new System.Drawing.Size(38, 13);
             this.statusLabel.TabIndex = 1;
-            this.statusLabel.Text = "Processed: 20/500";
+            this.statusLabel.Text = "Ready";
             // 
             // loadButton
             // 
@@ -142,6 +142,42 @@
             this.formControlsGroupBox.TabStop = false;
             this.formControlsGroupBox.Text = "Controls";
             // 
+            // fpsLabel
+            // 
+            this.fpsLabel.AutoSize = true;
+            this.fpsLabel.Location = new System.Drawing.Point(187, 56);
+            this.fpsLabel.Name = "fpsLabel";
+            this.fpsLabel.Size = new System.Drawing.Size(27, 13);
+            this.fpsLabel.TabIndex = 17;
+            this.fpsLabel.Text = "FPS";
+            // 
+            // blackWhiteCalibrationLabel
+            // 
+            this.blackWhiteCalibrationLabel.AutoSize = true;
+            this.blackWhiteCalibrationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.blackWhiteCalibrationLabel.Location = new System.Drawing.Point(345, 30);
+            this.blackWhiteCalibrationLabel.Name = "blackWhiteCalibrationLabel";
+            this.blackWhiteCalibrationLabel.Size = new System.Drawing.Size(119, 13);
+            this.blackWhiteCalibrationLabel.TabIndex = 16;
+            this.blackWhiteCalibrationLabel.Text = "Black/White Calibration";
+            // 
+            // blackWhiteNumericUpDown
+            // 
+            this.blackWhiteNumericUpDown.Location = new System.Drawing.Point(346, 52);
+            this.blackWhiteNumericUpDown.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.blackWhiteNumericUpDown.Name = "blackWhiteNumericUpDown";
+            this.blackWhiteNumericUpDown.Size = new System.Drawing.Size(46, 20);
+            this.blackWhiteNumericUpDown.TabIndex = 15;
+            this.blackWhiteNumericUpDown.Value = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            // 
             // frameRateHeaderLabel
             // 
             this.frameRateHeaderLabel.AutoSize = true;
@@ -151,6 +187,15 @@
             this.frameRateHeaderLabel.Size = new System.Drawing.Size(62, 13);
             this.frameRateHeaderLabel.TabIndex = 15;
             this.frameRateHeaderLabel.Text = "Frame Rate";
+            // 
+            // calibrateButton
+            // 
+            this.calibrateButton.Location = new System.Drawing.Point(399, 51);
+            this.calibrateButton.Name = "calibrateButton";
+            this.calibrateButton.Size = new System.Drawing.Size(65, 23);
+            this.calibrateButton.TabIndex = 14;
+            this.calibrateButton.Text = "Calibrate";
+            this.calibrateButton.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -186,19 +231,18 @@
             this.runProgressBar.Name = "runProgressBar";
             this.runProgressBar.Size = new System.Drawing.Size(395, 23);
             this.runProgressBar.TabIndex = 9;
-            this.runProgressBar.Value = 4;
             // 
-            // menuStrip1
+            // menuStrip
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.imageToolStripMenuItem,
             this.aboutToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(665, 24);
-            this.menuStrip1.TabIndex = 10;
-            this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip.Name = "menuStrip";
+            this.menuStrip.Size = new System.Drawing.Size(665, 24);
+            this.menuStrip.TabIndex = 10;
+            this.menuStrip.Text = "menuStrip";
             // 
             // fileToolStripMenuItem
             // 
@@ -241,51 +285,6 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
             // 
-            // blackWhiteNumericUpDown
-            // 
-            this.blackWhiteNumericUpDown.Location = new System.Drawing.Point(346, 52);
-            this.blackWhiteNumericUpDown.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.blackWhiteNumericUpDown.Name = "blackWhiteNumericUpDown";
-            this.blackWhiteNumericUpDown.Size = new System.Drawing.Size(46, 20);
-            this.blackWhiteNumericUpDown.TabIndex = 15;
-            this.blackWhiteNumericUpDown.Value = new decimal(new int[] {
-            32,
-            0,
-            0,
-            0});
-            // 
-            // calibrateButton
-            // 
-            this.calibrateButton.Location = new System.Drawing.Point(399, 51);
-            this.calibrateButton.Name = "calibrateButton";
-            this.calibrateButton.Size = new System.Drawing.Size(65, 23);
-            this.calibrateButton.TabIndex = 14;
-            this.calibrateButton.Text = "Calibrate";
-            this.calibrateButton.UseVisualStyleBackColor = true;
-            // 
-            // blackWhiteCalibrationLabel
-            // 
-            this.blackWhiteCalibrationLabel.AutoSize = true;
-            this.blackWhiteCalibrationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.blackWhiteCalibrationLabel.Location = new System.Drawing.Point(345, 30);
-            this.blackWhiteCalibrationLabel.Name = "blackWhiteCalibrationLabel";
-            this.blackWhiteCalibrationLabel.Size = new System.Drawing.Size(119, 13);
-            this.blackWhiteCalibrationLabel.TabIndex = 16;
-            this.blackWhiteCalibrationLabel.Text = "Black/White Calibration";
-            // 
-            // fpsLabel
-            // 
-            this.fpsLabel.AutoSize = true;
-            this.fpsLabel.Location = new System.Drawing.Point(187, 56);
-            this.fpsLabel.Name = "fpsLabel";
-            this.fpsLabel.Size = new System.Drawing.Size(27, 13);
-            this.fpsLabel.TabIndex = 17;
-            this.fpsLabel.Text = "FPS";
-            // 
             // ImageProcessingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -295,17 +294,17 @@
             this.Controls.Add(this.formControlsGroupBox);
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.currentImagePictureBox);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
+            this.Controls.Add(this.menuStrip);
+            this.MainMenuStrip = this.menuStrip;
             this.Name = "ImageProcessingForm";
             this.Text = "Image Processing";
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).EndInit();
             this.formControlsGroupBox.ResumeLayout(false);
             this.formControlsGroupBox.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.blackWhiteNumericUpDown)).EndInit();
+            this.menuStrip.ResumeLayout(false);
+            this.menuStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -322,7 +321,7 @@
         private System.Windows.Forms.NumericUpDown frameRateNumericUpDown;
         private System.Windows.Forms.GroupBox formControlsGroupBox;
         private System.Windows.Forms.ProgressBar runProgressBar;
-        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.Button pauseButton;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
