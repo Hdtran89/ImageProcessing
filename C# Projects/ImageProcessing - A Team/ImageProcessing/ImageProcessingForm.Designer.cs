@@ -53,6 +53,7 @@
             this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadImagesDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.aboutUsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).BeginInit();
             this.formControlsGroupBox.SuspendLayout();
@@ -90,12 +91,14 @@
             // 
             // runButton
             // 
+            this.runButton.Enabled = false;
             this.runButton.Location = new System.Drawing.Point(478, 40);
             this.runButton.Name = "runButton";
             this.runButton.Size = new System.Drawing.Size(77, 36);
             this.runButton.TabIndex = 3;
             this.runButton.Text = "Run";
             this.runButton.UseVisualStyleBackColor = true;
+            this.runButton.Click += new System.EventHandler(this.runButton_Click);
             // 
             // baseNeedleHeightTextBox
             // 
@@ -103,6 +106,7 @@
             this.baseNeedleHeightTextBox.Name = "baseNeedleHeightTextBox";
             this.baseNeedleHeightTextBox.Size = new System.Drawing.Size(55, 20);
             this.baseNeedleHeightTextBox.TabIndex = 5;
+            this.baseNeedleHeightTextBox.TextChanged += new System.EventHandler(this.baseNeedleHeightTextBox_TextChanged);
             // 
             // unitsLabel
             // 
@@ -177,6 +181,7 @@
             0,
             0,
             0});
+            this.blackWhiteNumericUpDown.ValueChanged += new System.EventHandler(this.blackWhiteNumericUpDown_ValueChanged);
             // 
             // frameRateHeaderLabel
             // 
@@ -190,12 +195,14 @@
             // 
             // calibrateButton
             // 
+            this.calibrateButton.Enabled = false;
             this.calibrateButton.Location = new System.Drawing.Point(399, 51);
             this.calibrateButton.Name = "calibrateButton";
             this.calibrateButton.Size = new System.Drawing.Size(65, 23);
             this.calibrateButton.TabIndex = 14;
             this.calibrateButton.Text = "Calibrate";
             this.calibrateButton.UseVisualStyleBackColor = true;
+            this.calibrateButton.Click += new System.EventHandler(this.calibrateButton_Click);
             // 
             // label2
             // 
@@ -258,12 +265,14 @@
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
             this.loadToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.loadToolStripMenuItem.Text = "Load";
+            this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadButton_Click);
             // 
             // quitToolStripMenuItem
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
             this.quitToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.quitToolStripMenuItem.Text = "Quit";
+            this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
             // 
             // imageToolStripMenuItem
             // 
@@ -275,15 +284,24 @@
             // 
             // runToolStripMenuItem
             // 
+            this.runToolStripMenuItem.Enabled = false;
             this.runToolStripMenuItem.Name = "runToolStripMenuItem";
-            this.runToolStripMenuItem.Size = new System.Drawing.Size(95, 22);
+            this.runToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.runToolStripMenuItem.Text = "Run";
             // 
             // aboutToolStripMenuItem
             // 
+            this.aboutToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutUsToolStripMenuItem});
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
+            // 
+            // aboutUsToolStripMenuItem
+            // 
+            this.aboutUsToolStripMenuItem.Name = "aboutUsToolStripMenuItem";
+            this.aboutUsToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.aboutUsToolStripMenuItem.Text = "About \'Image Processing\'";
             // 
             // ImageProcessingForm
             // 
@@ -337,6 +355,7 @@
         private System.Windows.Forms.Label blackWhiteCalibrationLabel;
         private System.Windows.Forms.NumericUpDown blackWhiteNumericUpDown;
         private System.Windows.Forms.Button calibrateButton;
+        private System.Windows.Forms.ToolStripMenuItem aboutUsToolStripMenuItem;
     }
 }
 

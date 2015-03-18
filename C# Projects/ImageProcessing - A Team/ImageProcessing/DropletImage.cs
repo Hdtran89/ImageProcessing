@@ -9,11 +9,42 @@ namespace ImageProcessing
 {
     class DropletImage
     {
-        //Class Properties
+        //=============================================================
+        //================    Class Properties    =====================
+        //=============================================================
+
+        //=== Image files ===
         Bitmap realImage;           //The image file as it appears in the data set
         Bitmap blackWhiteImage;     //The image file after it is converted to black and white
-        int imageIndex;             //The index of the image in the data set
 
+        //=== Image information ===
+        int imageIndex;             //The index of this image in the data set
+
+        //=== Droplet information ===
+        //Centroid variables
+        double centroidX;           //The droplet centroid's X position (in pixels)
+        double centroidY;           //The droplet centroid's Y position (in pixels)
+
+        //Velocity variables
+        double velocityX;           //The droplet's current X velocity in relation to the previous image (in pixels)
+        double velocityY;           //The droplet's current Y velocity in relation to the previous image (in pixels)
+        double velocityNet;         //The droplet's current net velocity in relation to the previous image (in pixels)
+
+        //Acceleration variables
+        double accelerationX;       //The droplet's current X acceleration in relation to the previous image (in pixels)
+        double accelerationY;       //The droplet's current Y acceleration in relation to the previous image (in pixels)
+        double accelerationNet;     //The droplet's current net acceleration in relation to the previous image (in pixels)
+
+        //Time variables
+        static double secondsPerImage;  //The number of seconds that elapse between two adjacent images
+        double secondsElapsed;          //The number of seconds elapsed since the first image, which occurs at 0 seconds
+
+        //=== Unit conversion information ===
+        static double baseNeedleHeight; //The user-defined distance in real units from the needle to the base
+
+        //=============================================================
+        //=================    Class Methods    =======================
+        //=============================================================
 
         public DropletImage(Bitmap image, int index)
         {
@@ -44,7 +75,6 @@ namespace ImageProcessing
                     {
                         blackWhiteImage.SetPixel(x, y, Color.White);
                     }
-
                 }
             }
         }
