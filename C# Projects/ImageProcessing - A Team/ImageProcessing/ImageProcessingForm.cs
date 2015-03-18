@@ -40,6 +40,9 @@ namespace ImageProcessing
                 tifImages.CopyTo(images, 0);
                 bmpImages.CopyTo(images, tifImages.Length);
 
+                //Display loading status
+                statusLabel.Text = "Loading data...";
+
                 //Create a Droplet Image object for every given image
                 dropletImages = new DropletImage[images.Length];
                 runProgressBar.Maximum = images.Length;
@@ -59,7 +62,37 @@ namespace ImageProcessing
                 //Set picturebox to black and white image
                 currentImagePictureBox.Image = displayedImage;
 
+                //Enable the 'Run' button and 'Calibrate' button
+                runButton.Enabled = true;
+                runToolStripMenuItem.Enabled = true;
+                calibrateButton.Enabled = true;
+
             }
+        }
+
+        private void baseNeedleHeightTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void blackWhiteNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void calibrateButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void runButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void quitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
