@@ -52,8 +52,8 @@
             this.imageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadImagesDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.aboutUsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadImagesDialog = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).BeginInit();
             this.formControlsGroupBox.SuspendLayout();
@@ -102,7 +102,7 @@
             // 
             // baseNeedleHeightTextBox
             // 
-            this.baseNeedleHeightTextBox.Location = new System.Drawing.Point(238, 52);
+            this.baseNeedleHeightTextBox.Location = new System.Drawing.Point(382, 53);
             this.baseNeedleHeightTextBox.Name = "baseNeedleHeightTextBox";
             this.baseNeedleHeightTextBox.Size = new System.Drawing.Size(55, 20);
             this.baseNeedleHeightTextBox.TabIndex = 5;
@@ -111,7 +111,7 @@
             // unitsLabel
             // 
             this.unitsLabel.AutoSize = true;
-            this.unitsLabel.Location = new System.Drawing.Point(297, 59);
+            this.unitsLabel.Location = new System.Drawing.Point(441, 60);
             this.unitsLabel.Name = "unitsLabel";
             this.unitsLabel.Size = new System.Drawing.Size(21, 13);
             this.unitsLabel.TabIndex = 6;
@@ -119,10 +119,11 @@
             // 
             // frameRateNumericUpDown
             // 
-            this.frameRateNumericUpDown.Location = new System.Drawing.Point(103, 52);
+            this.frameRateNumericUpDown.Location = new System.Drawing.Point(247, 53);
             this.frameRateNumericUpDown.Name = "frameRateNumericUpDown";
             this.frameRateNumericUpDown.Size = new System.Drawing.Size(82, 20);
             this.frameRateNumericUpDown.TabIndex = 7;
+            this.frameRateNumericUpDown.ValueChanged += new System.EventHandler(this.frameRateNumericUpDown_ValueChanged);
             // 
             // formControlsGroupBox
             // 
@@ -149,7 +150,7 @@
             // fpsLabel
             // 
             this.fpsLabel.AutoSize = true;
-            this.fpsLabel.Location = new System.Drawing.Point(187, 56);
+            this.fpsLabel.Location = new System.Drawing.Point(331, 57);
             this.fpsLabel.Name = "fpsLabel";
             this.fpsLabel.Size = new System.Drawing.Size(27, 13);
             this.fpsLabel.TabIndex = 17;
@@ -159,7 +160,7 @@
             // 
             this.blackWhiteCalibrationLabel.AutoSize = true;
             this.blackWhiteCalibrationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.blackWhiteCalibrationLabel.Location = new System.Drawing.Point(345, 30);
+            this.blackWhiteCalibrationLabel.Location = new System.Drawing.Point(109, 31);
             this.blackWhiteCalibrationLabel.Name = "blackWhiteCalibrationLabel";
             this.blackWhiteCalibrationLabel.Size = new System.Drawing.Size(119, 13);
             this.blackWhiteCalibrationLabel.TabIndex = 16;
@@ -167,7 +168,7 @@
             // 
             // blackWhiteNumericUpDown
             // 
-            this.blackWhiteNumericUpDown.Location = new System.Drawing.Point(346, 52);
+            this.blackWhiteNumericUpDown.Location = new System.Drawing.Point(110, 53);
             this.blackWhiteNumericUpDown.Maximum = new decimal(new int[] {
             255,
             0,
@@ -187,7 +188,7 @@
             // 
             this.frameRateHeaderLabel.AutoSize = true;
             this.frameRateHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.frameRateHeaderLabel.Location = new System.Drawing.Point(120, 30);
+            this.frameRateHeaderLabel.Location = new System.Drawing.Point(264, 31);
             this.frameRateHeaderLabel.Name = "frameRateHeaderLabel";
             this.frameRateHeaderLabel.Size = new System.Drawing.Size(62, 13);
             this.frameRateHeaderLabel.TabIndex = 15;
@@ -196,7 +197,7 @@
             // calibrateButton
             // 
             this.calibrateButton.Enabled = false;
-            this.calibrateButton.Location = new System.Drawing.Point(399, 51);
+            this.calibrateButton.Location = new System.Drawing.Point(163, 52);
             this.calibrateButton.Name = "calibrateButton";
             this.calibrateButton.Size = new System.Drawing.Size(65, 23);
             this.calibrateButton.TabIndex = 14;
@@ -216,7 +217,7 @@
             // 
             this.baseNeedleHeightLabel.AutoSize = true;
             this.baseNeedleHeightLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.baseNeedleHeightLabel.Location = new System.Drawing.Point(221, 30);
+            this.baseNeedleHeightLabel.Location = new System.Drawing.Point(365, 31);
             this.baseNeedleHeightLabel.Name = "baseNeedleHeightLabel";
             this.baseNeedleHeightLabel.Size = new System.Drawing.Size(104, 13);
             this.baseNeedleHeightLabel.TabIndex = 12;
@@ -286,7 +287,7 @@
             // 
             this.runToolStripMenuItem.Enabled = false;
             this.runToolStripMenuItem.Name = "runToolStripMenuItem";
-            this.runToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.runToolStripMenuItem.Size = new System.Drawing.Size(95, 22);
             this.runToolStripMenuItem.Text = "Run";
             // 
             // aboutToolStripMenuItem
