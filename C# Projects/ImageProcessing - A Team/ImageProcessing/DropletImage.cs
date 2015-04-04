@@ -42,6 +42,9 @@ namespace ImageProcessing
         //=== Unit conversion information ===
         static double baseNeedleHeight; //The user-defined distance in real units from the needle to the base
 
+        double volume;
+
+        bool[,] dropletMatrix;
         //=============================================================
         //=================    Class Methods    =======================
         //=============================================================
@@ -53,11 +56,11 @@ namespace ImageProcessing
             imageIndex = index;
         }
 
-        public void createBlackWhiteImage()
+        public void CreateBlackWhiteImage(int optionalGreyScaleThreshold = 32)
         {
             //Initialize the black and white image to the real image
             blackWhiteImage = realImage;
-
+            //Console.Write("Hey " + optionalGreyScaleThreshold);
             //Lauded llama code to convert each pixel to black or white
             for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
             {
@@ -67,7 +70,7 @@ namespace ImageProcessing
                     Color originalcolor = realImage.GetPixel(x, y);             //Grayscaling the pixel in question
                     int grayscale = (int)((originalcolor.R * .3) + (originalcolor.G * .59) + (originalcolor.B * .11));
 
-                    if (grayscale < 32)
+                    if (grayscale < optionalGreyScaleThreshold)
                     {
                         blackWhiteImage.SetPixel(x, y, Color.Black);
                     }
@@ -79,10 +82,35 @@ namespace ImageProcessing
             }
         }
 
-        public Bitmap getBlackWhiteImage()
+		public void DetermineCentroid()
+        {
+
+        }
+
+        public void DetermineVelocity()
+        {
+
+        }
+
+        public void DetermineAcceleration()
+        {
+
+        }
+		
+        public Bitmap GetBlackWhiteImage()
         {
             return blackWhiteImage;
         }
 
+        public void CalculateVolume(double horizontalDiam, double verticalDiam)
+        {
+            double radius = (horizontalDiam + verticalDiam) / 4;
+            volume = (4 / 3) * Math.PI * Math.Pow(radius, 3);
+        }
+
+        public void SetDropletMatrix(bool[,] matrix)
+        {
+            dropletMatrix = matrix;
+        }
     }
 }
