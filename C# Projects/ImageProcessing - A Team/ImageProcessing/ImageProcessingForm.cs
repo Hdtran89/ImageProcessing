@@ -18,7 +18,7 @@ namespace ImageProcessing
         string[] images;                //Stores file names of all images
         DropletImage[] dropletImages;   //Stores every DropletImage object
 		
-		bool[,] convergenceMatrix;
+		
         bool[,] dropletMatrix;
         double baseToNeedleHeight; 
         Bitmap displayedImage;
@@ -56,179 +56,32 @@ namespace ImageProcessing
                     dropletImages[i] = new DropletImage(new Bitmap(images[i]), i);
                 }
 
+                //Determine the location of the base and needle using test images
+                int numTestImages = 5;
+                //Always use the first and last images for convergence matrix
+                dropletImages[0].CompareTestArea();
+                dropletImages[dropletImages.Length - 1].CompareTestArea();
+                //Evenly space out the remaining images being used for convergence matrix
+                for (int i = 1; i < numTestImages - 1; i++)
+                {
+                    dropletImages[i * (dropletImages.Length / (numTestImages - 1))].CompareTestArea();
+                }
+
                 //Display the number of files loaded in the status label
                 statusLabel.Text = "Loaded " + images.Length + " images.";
 
                 //Set displayed image to the fourth in the list
                 dropletImages[4].CreateBlackWhiteImage();
-                displayedImage = dropletImages[4].GetBlackWhiteImage();
-                //Set picturebox to black and white image
-                //currentImagePictureBox.Image = displayedImage;
+                displayedImage = dropletImages[4].GetBlackWhiteImage();           
 
-                //initialize the boolean area for determining test area
-                convergenceMatrix = GetBooleanMatrix(displayedImage);
-
-                //test 4 random images against initial to create the convergence matrix
-                Random randomImageIndex = new Random();
-                for (int x = 0; x < 4; x++)
-                {
-                    int index = randomImageIndex.Next(0,images.Length);
-                    dropletImages[index].CreateBlackWhiteImage();
-                    Bitmap testImage = dropletImages[index].GetBlackWhiteImage();
-                    bool[,] tempTestMatrix = new bool[testImage.Width, testImage.Height];
-                    tempTestMatrix = GetBooleanMatrix(testImage);
-                    CompareTestArea(convergenceMatrix, tempTestMatrix);
-                }
-                
-                //Test one image to get just the drop
-                dropletImages[10].CreateBlackWhiteImage();
-                Bitmap test1Image = dropletImages[10].GetBlackWhiteImage();
-                bool[,] tempTest1Matrix = new bool[test1Image.Width, test1Image.Height];
-                tempTest1Matrix = GetBooleanMatrix(test1Image);
-                IsolateDroplet(convergenceMatrix, tempTest1Matrix);
-                FillDroplet();
-                Bitmap dropImage = new Bitmap(displayedImage.Width, displayedImage.Height);
-                for (int y = 0; y < displayedImage.Height; y++)
-                {
-                    for (int x = 0; x < displayedImage.Width; x++)
-                    {
-                        if (dropletMatrix[x,y] ==true)
-                        {
-                            dropImage.SetPixel(x, y, Color.Red);
-                        }
-                        else
-                        {
-                            dropImage.SetPixel(x, y, Color.White);
-                        }
-                    }
-                }
-
-                //dropletImages[10].SetDropletMatrix(dropletMatrix);
-
-                currentImagePictureBox.Image = dropImage;
-                    
+                //Set the image box to display the isolated droplet of an image
+                currentImagePictureBox.Image = dropletImages[4].GetDropImage();
 
                 //Enable the 'Run' button and 'Calibrate' button
                 runButton.Enabled = true;
                 runToolStripMenuItem.Enabled = true;
                 calibrateButton.Enabled = true;
 
-            }
-        }
-		
-		//use black and white of entire image to create boolean matrix
-        private bool[,] GetBooleanMatrix(Bitmap testImage)
-        {
-
-            bool[,] tempMatrix = new bool[testImage.Width, testImage.Height];
-            for (int y = 0; y < testImage.Height; y++)
-            {
-                for (int x = 0; x < testImage.Width; x++)
-                {
-                    if (testImage.GetPixel(x, y) == Color.FromArgb(255, 255, 255, 255))
-                    {
-                        tempMatrix[x, y] = false;
-                    }
-                    else
-                    {
-                        tempMatrix[x, y] = true;
-                    }
-                }
-            }
-            return tempMatrix;
-        }
-
-        //compare boolean matrix of base/needle with another image
-        private void CompareTestArea(bool[,] primaryMatrix, bool[,] testMatrix)
-        {
-            //Console.Write(primaryMatrix.GetLength(0));
-            //rows of convergence matrix
-            for (int y = 0; y < primaryMatrix.GetLength(1); y++)
-            {
-                //col
-                for (int x = 0; x < primaryMatrix.GetLength(0); x++)
-                {
-                    //if either primaryMatrix and testMatrix are false, then primaryMatrix is false
-                    if (!(primaryMatrix[x, y] == true && testMatrix[x, y] == true))
-                    {
-                        primaryMatrix[x, y] = false;
-                    }
-                }
-            }
-        }
-
-        //compare dropletimage matrix with convergence to isolate the drop
-        private void IsolateDroplet(bool[,] convergenceMatrix, bool[,] dropletImageMatrix)
-        {
-            dropletMatrix = new bool[dropletImageMatrix.GetLength(0), dropletImageMatrix.GetLength(1)];
-
-            //rows of convergence matrix
-            for (int y = 0; y < convergenceMatrix.GetLength(1); y++)
-            {
-                //col
-                for (int x = 0; x < convergenceMatrix.GetLength(0); x++)
-                {
-                    //if convergence matrix is false and dropletImage is true, then thats the drop
-                    if ((convergenceMatrix[x, y] == false && dropletImageMatrix[x, y] == true))
-                    {
-                        dropletMatrix[x, y] = true;
-                    }
-                    else
-                    {
-                        dropletMatrix[x, y] = false;
-                    }
-                }
-            }
-        }
-
-        //eliminate white center
-        private void FillDroplet()
-        {
-           
-            int constantThreshold = 3;
-            //rows of dropletMatrix 
-            for (int y = 0; y < dropletMatrix.GetLength(1); y++)
-            {
-                //col
-                int x = 0;
-                int leftX = 0;
-                int rightX = 0;
-                int leftPixelCnt = 0;
-                int rightPixelCnt = 0;
-                while (x < dropletMatrix.GetLength(0) && leftPixelCnt < constantThreshold)
-                {
-                    //if convergence matrix is false and dropletImage is true, then thats the drop
-                    if ((dropletMatrix[x, y] == true))
-                    {
-                        leftPixelCnt++;
-                    }
-                    x++;
-                }
-                if (leftPixelCnt == constantThreshold)
-                    leftX = x;
-
-                x = dropletMatrix.GetLength(0)-1;
-                while (x > 0 && rightPixelCnt < constantThreshold)
-                {
-                    //if convergence matrix is false and dropletImage is true, then thats the drop
-                    if ((dropletMatrix[x, y] == true))
-                    {
-                        rightPixelCnt++;
-                    }
-                    x--;
-                }
-
-                if (rightPixelCnt == constantThreshold)
-                    rightX = x;
-
-                if (leftPixelCnt >= constantThreshold && rightPixelCnt >= constantThreshold)
-                {
-                    for (int i = leftX; i < rightX; i++)
-                    {
-                        dropletMatrix[i, y] = true;
-                    }
-                }
-                
             }
         }
 
@@ -244,21 +97,21 @@ namespace ImageProcessing
 
         private void calibrateButton_Click(object sender, EventArgs e)
         {
-            //currentImagePictureBox.Image = null;
-            //currentImagePictureBox.Invalidate();
+
             int greyscaleThreshold = (int)blackWhiteNumericUpDown.Value;
             
-            if (greyscaleThreshold != 32)
-            {
-                //Set displayed image to the fourth in the list and adjust according to new calibration value
-                dropletImages[4].CreateBlackWhiteImage(greyscaleThreshold);
-                displayedImage = dropletImages[4].GetBlackWhiteImage();
+            //Set the greyscale threshold
+            DropletImage.SetGreyScaleThreshold(greyscaleThreshold);
+           
+            //Set displayed image to the fourth in the list and adjust according to new calibration value
+            dropletImages[4].CreateBlackWhiteImage();
+            displayedImage = dropletImages[4].GetBlackWhiteImage();
 
-                //currentImagePictureBox.Image = null;
-                //Set picturebox to black and white image
-                currentImagePictureBox.Image = displayedImage;
-                currentImagePictureBox.Refresh();
-            }
+            //currentImagePictureBox.Image = null;
+            //Set picturebox to black and white image
+            currentImagePictureBox.Image = displayedImage;
+            currentImagePictureBox.Refresh();
+            
         }
 
         private void runButton_Click(object sender, EventArgs e)
