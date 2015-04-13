@@ -22,7 +22,7 @@ namespace ImageProcessing
         bool[,] dropletMatrix;
         double baseToNeedleHeight; 
         Bitmap displayedImage;
-        int frameRate = 0;
+        int frameRate = 100;
 
         public ImageProcessingForm()
         {
@@ -69,14 +69,29 @@ namespace ImageProcessing
 
                 //Display the number of files loaded in the status label
                 statusLabel.Text = "Loaded " + images.Length + " images.";
-
+                DropletImage.ConvertFRtoSecPerImage(frameRate);
+                
                 //Set displayed image to the fourth in the list
                 dropletImages[4].CreateBlackWhiteImage();
-                displayedImage = dropletImages[4].GetBlackWhiteImage();           
+                displayedImage = dropletImages[4].GetBlackWhiteImage();
 
                 //Set the image box to display the isolated droplet of an image
                 currentImagePictureBox.Image = dropletImages[4].GetDropImage();
+                DropletImage.UpdateTimeElapsed();
 
+                /* 5 centroid is wrong for my test set (anne and sanan) */
+                dropletImages[5].CreateBlackWhiteImage();
+                //Set the image box to display the isolated droplet of an image
+                currentImagePictureBox.Image = dropletImages[5].GetDropImage();
+                DropletImage.UpdateTimeElapsed();
+
+                /*
+                dropletImages[6].CreateBlackWhiteImage();
+
+                //Set the image box to display the isolated droplet of an image
+                currentImagePictureBox.Image = dropletImages[6].GetDropImage();
+                
+                */
                 //Enable the 'Run' button and 'Calibrate' button
                 runButton.Enabled = true;
                 runToolStripMenuItem.Enabled = true;
@@ -116,6 +131,8 @@ namespace ImageProcessing
 
         private void runButton_Click(object sender, EventArgs e)
         {
+            frameRate = (int)frameRateNumericUpDown.Value;
+            DropletImage.ConvertFRtoSecPerImage(frameRate);
 			//Number of total threads
 			int numThreads = 4;
 			
