@@ -72,26 +72,31 @@ namespace ImageProcessing
                 DropletImage.ConvertFRtoSecPerImage(frameRate);
                 
                 //Set displayed image to the fourth in the list
-                dropletImages[4].CreateBlackWhiteImage();
-                displayedImage = dropletImages[4].GetBlackWhiteImage();
+                displayedImage = dropletImages[5].GetBlackWhiteImage();
+                //displayedImage = dropletImages[5].GetDropImage();
+                //Set the image box to display the altered image and calculate stuff behind the scenes
+                currentImagePictureBox.Image = displayedImage;
 
-                //Set the image box to display the isolated droplet of an image
-                currentImagePictureBox.Image = dropletImages[4].GetDropImage();
                 DropletImage.UpdateTimeElapsed();
 
-                /* 5 centroid is wrong for my test set (anne and sanan) */
-                dropletImages[5].CreateBlackWhiteImage();
-                //Set the image box to display the isolated droplet of an image
-                currentImagePictureBox.Image = dropletImages[5].GetDropImage();
+                /*//test next two images
+                displayedImage = dropletImages[6].GetBlackWhiteImage();
+                //Set the image box to display the altered image and calculate stuff behind the scenes
+                currentImagePictureBox.Image = displayedImage;
                 DropletImage.UpdateTimeElapsed();
 
-                /*
-                dropletImages[6].CreateBlackWhiteImage();
-
-                //Set the image box to display the isolated droplet of an image
-                currentImagePictureBox.Image = dropletImages[6].GetDropImage();
-                
+                displayedImage = dropletImages[7].GetBlackWhiteImage();
+                //Set the image box to display the altered image and calculate stuff behind the scenes
+                currentImagePictureBox.Image = displayedImage;
+                DropletImage.UpdateTimeElapsed();
                 */
+
+                if(baseNeedleHeightTextBox.Text != "")
+                {
+                    baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
+                    DropletImage.ConvertPixelToMicron(baseToNeedleHeight); 
+                }
+               
                 //Enable the 'Run' button and 'Calibrate' button
                 runButton.Enabled = true;
                 runToolStripMenuItem.Enabled = true;
@@ -119,8 +124,7 @@ namespace ImageProcessing
             DropletImage.SetGreyScaleThreshold(greyscaleThreshold);
            
             //Set displayed image to the fourth in the list and adjust according to new calibration value
-            dropletImages[4].CreateBlackWhiteImage();
-            displayedImage = dropletImages[4].GetBlackWhiteImage();
+            displayedImage = dropletImages[5].GetBlackWhiteImage();
 
             //currentImagePictureBox.Image = null;
             //Set picturebox to black and white image
