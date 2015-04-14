@@ -32,6 +32,7 @@ namespace ImageProcessing
         //=== Droplet information ===
 
         //Centroid variables
+        int pixelThreshold = 3;
         List<Coord> circumferencePoints;
 
         double centroidX;           //The droplet centroid's X position (in pixels)
@@ -58,7 +59,7 @@ namespace ImageProcessing
         static double secondsElapsed;   //The number of seconds elapsed since the first image, which occurs at 0 seconds
 
         //=== Unit conversion information ===
-        static double baseNeedleHeight; //The user-defined distance in real units from the needle to the base
+        static double cmPerPixel = 1; //The user-defined distance in real units from the needle to the base
 
         double volume;
 
@@ -94,40 +95,6 @@ namespace ImageProcessing
 
         }
 
-        public void CreateBlackWhiteImage()
-        {
-            //Initialize the black and white image to the real image
-            blackWhiteImage = realImage;
-            //Console.Write("Hey " + optionalGreyScaleThreshold);
-            //Lauded llama code to convert each pixel to black or white
-            for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
-            {
-
-                for (int x = 0; x < realImage.Width; x++)                       //columuns (xpos) in bitmap
-                {
-                    Color originalcolor = realImage.GetPixel(x, y);             //Grayscaling the pixel in question
-                    int grayscale = (int)((originalcolor.R * .3) + (originalcolor.G * .59) + (originalcolor.B * .11));
-
-                    //Create black/white image and save results in black/white matrix
-                    if (grayscale < greyScaleThreshold)
-                    {
-                        blackWhiteImage.SetPixel(x, y, Color.Black);
-                        //blackWhiteMatrix[x, y] = true;
-                    }
-                    else
-                    {
-                        blackWhiteImage.SetPixel(x, y, Color.White);
-                        //blackWhiteMatrix[x, y] = false;
-                    }
-                }
-            }
-        }
-
-        public Bitmap GetBlackWhiteImage()
-        {
-            return blackWhiteImage;
-        }
-
         private void CreateBlackWhiteMatrix()
         {
             //Loop through each pixel in the image
@@ -152,7 +119,7 @@ namespace ImageProcessing
         }
 
 
-        //Compare the current convergence matrix to this image
+        //Compare the current convergence matrix to this image and update convergence matrix accordingly
         public void CompareTestArea()
         {
             //Create the black/white matrix for this image
@@ -174,12 +141,6 @@ namespace ImageProcessing
             }
         }
 
-        //Determine the location of the droplet by determining the difference
-        //between this image's black/white matrix and the convergence matrix
-        private void CreateDropletMatrix()
-        {
-
-        }
 
         //Determine where the base and needle is located in every image
         public void DetermineBaseAndNeedle()
@@ -187,7 +148,8 @@ namespace ImageProcessing
             
         }
 
-        //compare dropletimage matrix with convergence to isolate the drop
+        //Determine the location of the droplet by determining the difference
+        //between this image's black/white matrix and the convergence matrix
         private void IsolateDroplet()
         {
             dropletMatrix = new bool[realImage.Width, realImage.Height];
@@ -211,8 +173,7 @@ namespace ImageProcessing
             }
         }
 
-        int pixelThreshold = 3;
-
+        //Sweep dropletMatrix cols to find possible dropCircumference points
         private void XDropletSweep()
         {
             //rows of dropletMatrix 
@@ -243,7 +204,6 @@ namespace ImageProcessing
                     leftX = x;
                 }
 
-
                 x = dropletMatrix.GetLength(0) - 1;
                 while (x > 0 && rightPixelCnt < pixelThreshold)
                 {
@@ -266,9 +226,7 @@ namespace ImageProcessing
                 {
                     AddCircumferencePoint(leftX - pixelThreshold, y);
                     AddCircumferencePoint(rightX + pixelThreshold, y);
-                    //draw outside circumference points ... but missing some, may be affecting centroid calc
-                    dropImage.SetPixel(leftX - pixelThreshold, y, Color.Black);
-                    dropImage.SetPixel(rightX + pixelThreshold, y, Color.Black);
+                    //fill in droplet
                     for (int i = leftX; i < rightX; i++)
                     {
                         dropletMatrix[i, y] = true;
@@ -277,18 +235,21 @@ namespace ImageProcessing
             }
         }
 
+        //Sweep dropletMatrix rows to find possible dropCircumference points
         private void YDropletSweep()
         {
-            //rows of dropletMatrix 
+            //columns of dropletMatrix 
             for (int x = 0; x < dropletMatrix.GetLength(0); x++)
             {
-                //col
-                int y = 0;
+                
                 int topY = 0;
                 int bottomY = 0;
                 int topPixelCnt = 0;
                 int bottomPixelCnt = 0;
 
+                //rows
+                int y = 0;
+                //sweep from top to bottom until you run into continuous pixels that meet the threshold
                 while (y < dropletMatrix.GetLength(1) && topPixelCnt < pixelThreshold)
                 {
                     //if dropletMatrix is true, increment the leftPixelCnt
@@ -307,7 +268,7 @@ namespace ImageProcessing
                     topY = y;
                 }
 
-
+                //then sweep from bottom to top until you run into continuous pixels 
                 y = dropletMatrix.GetLength(1) - 1;
                 while (y > 0 && bottomPixelCnt < pixelThreshold)
                 {
@@ -326,14 +287,13 @@ namespace ImageProcessing
                 if (bottomPixelCnt == pixelThreshold)
                     bottomY = y;
 
+                //if top sweep and bottom sweep are successful, fill in points between them
                 if (topY != 0 && bottomY != 0)
                 {
+                    //add the point after accounting for threshold check shifting
                     AddCircumferencePoint(x, topY - pixelThreshold);
                     AddCircumferencePoint(x, bottomY + pixelThreshold);
 
-                    //draw outside circumference points ... but missing some, may be affecting centroid calc
-                    dropImage.SetPixel(x,topY - pixelThreshold, Color.Black);
-                    dropImage.SetPixel(x,bottomY + pixelThreshold, Color.Black);
                     for (int i = topY; i < bottomY; i++)
                     {
                         dropletMatrix[x, i] = true;
@@ -348,6 +308,7 @@ namespace ImageProcessing
             YDropletSweep();
         }
 
+        //Add points BELIEVED to be part ouf droplet circumference - based on a threshold of surrounding pixes
         private void AddCircumferencePoint(int x, int y)
         {
             Coord tempPt;
@@ -358,32 +319,99 @@ namespace ImageProcessing
                 circumferencePoints.Add(tempPt);
             }
         }
-        public Bitmap GetDropImage()
+
+        //Remove any points that may have been added to circumferencePoints 
+        //that do not actually comprise the droplet 
+        private void RemoveOutliers()
         {
-            CreateBlackWhiteMatrix();
-            IsolateDroplet();
-            FillDroplet();
-            PerformCalculations();
-            /*
-            for (int y = 0; y < realImage.Height; y++)
+            bool[] markedRows = new bool[realImage.Height]; //array to hold all rows in image that may
+                                                            //hold a circumference point or outlier
+            bool[] markedCols = new bool[realImage.Width]; //array to hold all columns in image that may
+                                                            //hold a circumference point or outlier
+
+            foreach(Coord circumPoint in circumferencePoints)
             {
-                for (int x = 0; x < realImage.Width; x++)
+                //Mark all rows
+                markedRows[circumPoint.yCoord] = true;
+
+                //Mark all cols
+                markedCols[circumPoint.xCoord] = true;
+            }
+
+            //Find max num contiguous slots in marked rows
+            int minDropIndex = -1;
+            int maxContiguous = 0;
+            int currentCount = 0;
+            for (int i = 0; i < realImage.Height; i++)
+            {
+                if (markedRows[i] == true)
                 {
-                    if (dropletMatrix[x, y] == true)
+                    currentCount++;
+                }
+                if (markedRows[i] == false && currentCount > 0)
+                {
+                    if (currentCount > maxContiguous)
                     {
-                        dropImage.SetPixel(x, y, Color.Red);
+                        maxContiguous = currentCount;
+                        minDropIndex = i - maxContiguous;
                     }
-                    else
-                    {
-                        dropImage.SetPixel(x, y, Color.White);
-                    }
+                        
+                    currentCount = 0;
                 }
             }
-             * */
-            //set centroid pixel to black
-            dropImage.SetPixel((int)centroidX, (int)centroidY, Color.Black);
 
-            return dropImage;
+            //Remove outliers in marked rows
+            List<Coord> pointsToRemove = new List<Coord>();
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                //if yCoord in outside of the drop's presumed range, need to remove it from list of circumference points
+                if (!(circumPoint.yCoord >= minDropIndex && circumPoint.yCoord <= minDropIndex + maxContiguous))
+                {
+                    pointsToRemove.Add(circumPoint);
+                }
+            }
+            //remove row outlier points from list of circumference points
+            foreach (Coord circumPoint in pointsToRemove)
+            {
+                circumferencePoints.Remove(circumPoint);
+            }
+
+            //Find max num contiguous slots in marked cols
+            minDropIndex = -1;
+            maxContiguous = 0;
+            currentCount = 0;
+            for (int i = 0; i < realImage.Width; i++)
+            {
+                if (markedCols[i] == true)
+                {
+                    currentCount++;
+                }
+                if (markedCols[i] == false && currentCount > 0)
+                {
+                    if (currentCount > maxContiguous)
+                    {
+                        maxContiguous = currentCount;
+                        minDropIndex = i - maxContiguous;
+                    }
+
+                    currentCount = 0;
+                }
+            }
+
+            //Remove outliers in marked cols
+            pointsToRemove = new List<Coord>();
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                if (!(circumPoint.xCoord >= minDropIndex && circumPoint.xCoord <= minDropIndex + maxContiguous))
+                {
+                    pointsToRemove.Add(circumPoint);
+                }
+            }
+            foreach (Coord circumPoint in pointsToRemove)
+            {
+                circumferencePoints.Remove(circumPoint);
+            }
+
         }
 
         //Calc centroid Using the sums of the x and y coordinates of the circumference points.
@@ -397,6 +425,7 @@ namespace ImageProcessing
 
             centroidX /= circumferencePoints.Count;
             centroidY /= circumferencePoints.Count;
+
         }
 
         //Calculate Velocity change between centroid distances of this and previous image
@@ -404,8 +433,8 @@ namespace ImageProcessing
         {
             if (secondsElapsed != 0)
             {
-                velocityX = (centroidX - prevCentroidX) / secondsPerImage;
-                velocityY = (centroidY - prevCentroidY) / secondsPerImage;
+                velocityX = (centroidX - prevCentroidX) * cmPerPixel / secondsPerImage;
+                velocityY = (centroidY - prevCentroidY) * cmPerPixel/ secondsPerImage;
             }
             else
             {
@@ -440,10 +469,36 @@ namespace ImageProcessing
             prevVelocityY = velocityY;
         }
 
-        public void DetermineVolume(double horizontalDiam, double verticalDiam)
+        public void DetermineVolume()
         {
-            double radius = (horizontalDiam + verticalDiam) / 4;
-            volume = (4 / 3) * Math.PI * Math.Pow(radius, 3);
+            //initialize min and max
+            int minX = realImage.Width;
+            int maxX = 0;
+            int minY = realImage.Height;
+            int maxY = 0;
+
+            double horizontalDiam, verticalDiam = 0;
+
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                if (circumPoint.xCoord <= minX)
+                    minX = circumPoint.xCoord;
+                
+                if (circumPoint.xCoord > maxX)
+                    maxX = circumPoint.xCoord;
+
+                if (circumPoint.yCoord <= minY)
+                    minY = circumPoint.yCoord;
+
+                if (circumPoint.yCoord > maxY)
+                    maxY = circumPoint.yCoord;
+            }
+
+            horizontalDiam = maxX - minX;
+            verticalDiam = maxY - minY;
+            Console.WriteLine("horizontal diam: " + horizontalDiam + " vertical diam: " + verticalDiam);
+            double radius = ((horizontalDiam + verticalDiam) / 4) * cmPerPixel;
+            volume = (4.0 / 3.0) * Math.PI * Math.Pow(radius, 3);
         }
 
         public void PerformCalculations()
@@ -455,6 +510,82 @@ namespace ImageProcessing
             Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
             DetermineAcceleration();
             Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
+            DetermineVolume();
+            Console.WriteLine("volume: " + volume);
+        }
+
+        //Show just the complete drop and nothing else
+        public Bitmap GetDropImage()
+        {
+            CreateBlackWhiteMatrix();
+            IsolateDroplet();
+            FillDroplet();
+            RemoveOutliers();
+            PerformCalculations();
+            
+            for (int y = 0; y < realImage.Height; y++)
+            {
+                for (int x = 0; x < realImage.Width; x++)
+                {
+                    if (dropletMatrix[x, y] == true)
+                    {
+                        dropImage.SetPixel(x, y, Color.Red);
+                    }
+                    else
+                    {
+                        dropImage.SetPixel(x, y, Color.White);
+                    }
+                }
+            }
+
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                //draw circumference points for testing
+                dropImage.SetPixel(circumPoint.xCoord, circumPoint.yCoord, Color.Black);
+            }
+
+            //set centroid pixel to black
+            dropImage.SetPixel((int)centroidX, (int)centroidY, Color.Black);
+
+            return dropImage;
+        }
+
+        //show the complete drop plus needle and base
+        public void CreateBlackWhiteImage()
+        {
+            //Initialize the black and white image to the real image
+            blackWhiteImage = realImage;
+            //Lauded llama code to convert each pixel to black or white
+            for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
+            {
+                for (int x = 0; x < realImage.Width; x++)                       //columuns (xpos) in bitmap
+                {
+                    //Create black/white image based on greyscale changes shown in blackwhiteMatrix and
+                    //filled drop
+                    if (blackWhiteMatrix[x, y] == true || dropletMatrix[x, y] == true)
+                    {
+                        blackWhiteImage.SetPixel(x, y, Color.Black);
+                    }
+                    else
+                    {
+                        blackWhiteImage.SetPixel(x, y, Color.White);
+                    }
+                }
+            }
+            //set centroid pixel to black in drop image
+            blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Red);
+        }
+
+        public Bitmap GetBlackWhiteImage()
+        {
+            CreateBlackWhiteMatrix();
+            IsolateDroplet();
+            FillDroplet();
+            RemoveOutliers();
+            PerformCalculations();
+            CreateBlackWhiteImage();
+
+            return blackWhiteImage;
         }
 
         public static void SetGreyScaleThreshold(int input)
@@ -471,6 +602,64 @@ namespace ImageProcessing
         public static void UpdateTimeElapsed()
         {
             secondsElapsed += secondsPerImage;
+        }
+
+        //Not done
+        //Use amount of pixels measured between bottom of needle and top of base in image 
+        //to relate to this same distance in mm units in real setUp
+        public static void ConvertPixelToMicron(double baseToNeedleInCM)
+        {
+            int minY = 0; //represents pixel postion of bottom of needle
+            int maxY = convergenceMatrix.GetLength(1) - 1; //represents top of base
+
+            int needleX = 0; //represents x position where needle is at its lowest point.
+            int y = 0;
+            //columns of convergenceMatric
+            for (int x = 0; x < convergenceMatrix.GetLength(0); x++)
+            {
+                //row
+                bool atNeedle = true;
+                //sweep from top to bottom 
+                while (y < convergenceMatrix.GetLength(1) && atNeedle)
+                {
+                    //if looking at part of needle(convergenceMatrix[x, y] == true), update lowest part of needle (minY) 
+                    //and increment to check if pixel below is also part of needle
+                    //Note: this is based on assumption the entire needle is represented completely in the convergence matrix
+                    if ((convergenceMatrix[x, y] == true))
+                    {
+                        minY = y;
+                        needleX = x;
+                        y++;
+                    }
+                    else //if not looking at part of needle - break while and check next column
+                    {
+                        atNeedle = false;
+                    }
+                }
+                
+            }
+            //then sweep from bottom to top until you run into continuous pixels 
+            y = convergenceMatrix.GetLength(1) - 1;
+            bool atBase = true;
+            while (y > 0 && atBase)
+            {
+                //looking from the bottom up, if convergence matrix is true- this is the base,
+                //continue looking up until no more base is found - this is the y for the top of the base
+                //Note: this is based on assumption the entire base is represented completely in the convergence matrix
+                if ((convergenceMatrix[needleX, y] == true))
+                {
+                    maxY = y;
+                    y--;
+                }
+                else
+                {
+                    atBase = false;
+                }
+                
+            }
+
+            int baseToNeedleInPixels = maxY - minY;
+            cmPerPixel = baseToNeedleInCM / baseToNeedleInPixels;
         }
     }
 }
