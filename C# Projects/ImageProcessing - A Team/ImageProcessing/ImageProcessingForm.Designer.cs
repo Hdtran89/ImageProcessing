@@ -120,6 +120,11 @@
             // frameRateNumericUpDown
             // 
             this.frameRateNumericUpDown.Location = new System.Drawing.Point(247, 53);
+            this.frameRateNumericUpDown.Maximum = new decimal(new int[] {
+            1410065407,
+            2,
+            0,
+            0});
             this.frameRateNumericUpDown.Name = "frameRateNumericUpDown";
             this.frameRateNumericUpDown.Size = new System.Drawing.Size(82, 20);
             this.frameRateNumericUpDown.TabIndex = 7;

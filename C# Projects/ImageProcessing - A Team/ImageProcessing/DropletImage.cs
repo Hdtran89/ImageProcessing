@@ -38,16 +38,19 @@ namespace ImageProcessing
         double centroidX;           //The droplet centroid's X position (in pixels)
         double centroidY;           //The droplet centroid's Y position (in pixels)
 
-        static double prevCentroidX;
-        static double prevCentroidY;
+        double realCentroidX;       //The droplet centroid's X position (in cm - if baseToNeedle height given) else still in pixels
+        double realCentroidY;       //The droplet centroid's Y position (in cm - if baseToNeedle Height given) else still in pixels
+
+        double prevCentroidX;
+        double prevCentroidY;
 
         //Velocity variables
         double velocityX;           //The droplet's current X velocity in relation to the previous image (in pixels)
         double velocityY;           //The droplet's current Y velocity in relation to the previous image (in pixels)
         double velocityNet;         //The droplet's current net velocity in relation to the previous image (in pixels)
 
-        static double prevVelocityX;
-        static double prevVelocityY;
+        double prevVelocityX;
+        double prevVelocityY;
 
         //Acceleration variables
         double accelerationX;       //The droplet's current X acceleration in relation to the previous image (in pixels)
@@ -56,11 +59,11 @@ namespace ImageProcessing
 
         //Time variables
         static double secondsPerImage;  //The number of seconds that elapse between two adjacent images
-        static double secondsElapsed;   //The number of seconds elapsed since the first image, which occurs at 0 seconds
+        double time;   //The number of seconds elapsed since the first image, which occurs at 0 seconds
 
         //=== Unit conversion information ===
         static double cmPerPixel = 1; //The user-defined distance in real units from the needle to the base
-
+        static string unit = "px";
         double volume;
 
         bool[,] dropletMatrix;
@@ -74,6 +77,7 @@ namespace ImageProcessing
             //Save the given input
             realImage = image;
             imageIndex = index;
+            DetermineTime();
             dropImage = new Bitmap(realImage.Width, realImage.Height);
             //Initialize convergence matrix once
             if (index == 0)
@@ -102,6 +106,7 @@ namespace ImageProcessing
             {
                 for (int x = 0; x < realImage.Width; x++)
                 {
+                    blackWhiteMatrix[x, y] = false;
                     Color originalcolor = realImage.GetPixel(x, y);             //Grayscaling the pixel in question
                     int grayscale = (int)((originalcolor.R * .3) + (originalcolor.G * .59) + (originalcolor.B * .11));
 
@@ -118,7 +123,19 @@ namespace ImageProcessing
             }
         }
 
-
+        //Compare the current convergence matrix to this image and update convergence matrix accordingly
+        public void ClearConvergenceMatrix()
+        {
+            
+            //Compare this matrix to the convergence matrix
+            for (int y = 0; y < realImage.Height; y++)
+            {
+                for (int x = 0; x < realImage.Width; x++)
+                {
+                    convergenceMatrix[x, y] = false;
+                }
+            }
+        }
         //Compare the current convergence matrix to this image and update convergence matrix accordingly
         public void CompareTestArea()
         {
@@ -141,13 +158,6 @@ namespace ImageProcessing
             }
         }
 
-
-        //Determine where the base and needle is located in every image
-        public void DetermineBaseAndNeedle()
-        {
-            
-        }
-
         //Determine the location of the droplet by determining the difference
         //between this image's black/white matrix and the convergence matrix
         private void IsolateDroplet()
@@ -160,6 +170,7 @@ namespace ImageProcessing
                 //col
                 for (int x = 0; x < convergenceMatrix.GetLength(0); x++)
                 {
+                    dropletMatrix[x, y] = false;
                     //if convergence matrix is false and dropletImage is true, then thats the drop
                     if (convergenceMatrix[x, y] == false && blackWhiteMatrix[x, y] == true)
                     {
@@ -414,6 +425,14 @@ namespace ImageProcessing
 
         }
 
+        public void PreprocessImage()
+        {
+            CreateBlackWhiteMatrix();
+            IsolateDroplet();
+            FillDroplet();
+            RemoveOutliers();
+        }
+
         //Calc centroid Using the sums of the x and y coordinates of the circumference points.
         public void DetermineCentroid()
         {
@@ -425,16 +444,19 @@ namespace ImageProcessing
 
             centroidX /= circumferencePoints.Count;
             centroidY /= circumferencePoints.Count;
+            realCentroidX = centroidX * cmPerPixel;
+            realCentroidY = centroidY * cmPerPixel;
 
         }
 
         //Calculate Velocity change between centroid distances of this and previous image
         public void DetermineVelocity()
         {
-            if (secondsElapsed != 0)
+            Console.WriteLine("prevCentroidX: " + prevCentroidX + " prevCentroidY: " + prevCentroidY);
+            if (time != 0)
             {
-                velocityX = (centroidX - prevCentroidX) * cmPerPixel / secondsPerImage;
-                velocityY = (centroidY - prevCentroidY) * cmPerPixel/ secondsPerImage;
+                velocityX = (realCentroidX - prevCentroidX)/ secondsPerImage;
+                velocityY = (realCentroidY - prevCentroidY)/ secondsPerImage;
             }
             else
             {
@@ -443,15 +465,12 @@ namespace ImageProcessing
             }
 
             velocityNet = Math.Sqrt(Math.Pow(velocityX, 2) + Math.Pow(velocityY, 2));
-            //make current centroid previous after calculation
-            prevCentroidX = centroidX;
-            prevCentroidY = centroidY;
 
         }
 
         public void DetermineAcceleration()
         {
-            if (secondsElapsed != 0)
+            if (time != 0)
             {
                 accelerationX = (velocityX - prevVelocityX) / secondsPerImage;
                 accelerationY = (velocityY - prevVelocityY) / secondsPerImage;
@@ -463,10 +482,6 @@ namespace ImageProcessing
             }
 
             accelerationNet = Math.Sqrt(Math.Pow(accelerationX, 2) + Math.Pow(accelerationY, 2));
-
-            //make current velocity previousVelocity after calculation
-            prevVelocityX = velocityX;
-            prevVelocityY = velocityY;
         }
 
         public void DetermineVolume()
@@ -494,34 +509,36 @@ namespace ImageProcessing
                     maxY = circumPoint.yCoord;
             }
 
-            horizontalDiam = maxX - minX;
-            verticalDiam = maxY - minY;
-            Console.WriteLine("horizontal diam: " + horizontalDiam + " vertical diam: " + verticalDiam);
+            horizontalDiam = (maxX - minX) * cmPerPixel;
+            verticalDiam = (maxY - minY) * cmPerPixel;
+            //Console.WriteLine("horizontal diam: " + horizontalDiam + " vertical diam: " + verticalDiam);
             double radius = ((horizontalDiam + verticalDiam) / 4) * cmPerPixel;
             volume = (4.0 / 3.0) * Math.PI * Math.Pow(radius, 3);
         }
 
+        /* will not be called by threads - calculations determined individually - just for testing
         public void PerformCalculations()
         {
             DetermineCentroid();
             DetermineVelocity();
-            Console.WriteLine("sec: " + secondsElapsed);
-            Console.WriteLine("centX: " + centroidX + " centY: " + centroidY);
+            Console.WriteLine("sec: " + time);
+            Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
             Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
             DetermineAcceleration();
             Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
             DetermineVolume();
             Console.WriteLine("volume: " + volume);
         }
+        */
 
         //Show just the complete drop and nothing else
         public Bitmap GetDropImage()
         {
-            CreateBlackWhiteMatrix();
-            IsolateDroplet();
-            FillDroplet();
-            RemoveOutliers();
-            PerformCalculations();
+            Console.WriteLine("sec: " + time);
+            Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
+            Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
+            Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
+            Console.WriteLine("volume: " + volume);
             
             for (int y = 0; y < realImage.Height; y++)
             {
@@ -530,10 +547,6 @@ namespace ImageProcessing
                     if (dropletMatrix[x, y] == true)
                     {
                         dropImage.SetPixel(x, y, Color.Red);
-                    }
-                    else
-                    {
-                        dropImage.SetPixel(x, y, Color.White);
                     }
                 }
             }
@@ -544,15 +557,21 @@ namespace ImageProcessing
                 dropImage.SetPixel(circumPoint.xCoord, circumPoint.yCoord, Color.Black);
             }
 
-            //set centroid pixel to black
-            dropImage.SetPixel((int)centroidX, (int)centroidY, Color.Black);
-
+            //set centroid pixel to green
+            dropImage.SetPixel((int)centroidX, (int)centroidY, Color.Green);
+            //Console.Write("x centroid: " + centroidX + " yCentroid: " + centroidY);
             return dropImage;
         }
 
         //show the complete drop plus needle and base
-        public void CreateBlackWhiteImage()
+        public Bitmap GetBlackWhiteImage()
         {
+            Console.WriteLine("sec: " + time);
+            Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
+            Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
+            Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
+            Console.WriteLine("volume: " + volume);
+
             //Initialize the black and white image to the real image
             blackWhiteImage = realImage;
             //Lauded llama code to convert each pixel to black or white
@@ -564,26 +583,36 @@ namespace ImageProcessing
                     //filled drop
                     if (blackWhiteMatrix[x, y] == true || dropletMatrix[x, y] == true)
                     {
-                        blackWhiteImage.SetPixel(x, y, Color.Black);
-                    }
-                    else
-                    {
-                        blackWhiteImage.SetPixel(x, y, Color.White);
+                        blackWhiteImage.SetPixel(x, y, Color.Red);
                     }
                 }
             }
             //set centroid pixel to black in drop image
-            blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Red);
+            blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Green);
+
+            return blackWhiteImage;
         }
 
-        public Bitmap GetBlackWhiteImage()
+        //show the complete drop plus needle and base
+        public Bitmap GetConvergence()
         {
-            CreateBlackWhiteMatrix();
-            IsolateDroplet();
-            FillDroplet();
-            RemoveOutliers();
-            PerformCalculations();
-            CreateBlackWhiteImage();
+            //Initialize the black and white image to the real image
+            blackWhiteImage = realImage;
+            //Lauded llama code to convert each pixel to black or white
+            for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
+            {
+                for (int x = 0; x < realImage.Width; x++)                       //columuns (xpos) in bitmap
+                {
+                    //Create black/white image based on greyscale changes shown in blackwhiteMatrix and
+                    //filled drop
+                    if (convergenceMatrix[x, y] == true)
+                    {
+                        blackWhiteImage.SetPixel(x, y, Color.Red);
+                    }
+                }
+            }
+            //set centroid pixel to black in drop image
+            blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Green);
 
             return blackWhiteImage;
         }
@@ -599,9 +628,9 @@ namespace ImageProcessing
             secondsPerImage = (double) 1 / (double) frameRate;
         }
 
-        public static void UpdateTimeElapsed()
+        private void DetermineTime()
         {
-            secondsElapsed += secondsPerImage;
+            time = imageIndex * secondsPerImage;
         }
 
         //Not done
@@ -609,7 +638,7 @@ namespace ImageProcessing
         //to relate to this same distance in mm units in real setUp
         public static void ConvertPixelToMicron(double baseToNeedleInCM)
         {
-            int minY = 0; //represents pixel postion of bottom of needle
+            int minY = 0; //represents pixel y postion of bottom of needle
             int maxY = convergenceMatrix.GetLength(1) - 1; //represents top of base
 
             int needleX = 0; //represents x position where needle is at its lowest point.
@@ -659,7 +688,85 @@ namespace ImageProcessing
             }
 
             int baseToNeedleInPixels = maxY - minY;
-            cmPerPixel = baseToNeedleInCM / baseToNeedleInPixels;
+            if (baseToNeedleInCM == -1)
+            {
+                cmPerPixel = 1;
+                unit = "px";
+            }
+            else
+            {
+                cmPerPixel = baseToNeedleInCM / baseToNeedleInPixels;
+                unit = "cm";
+            }
+      
+            Console.WriteLine("cm per pixel: " + cmPerPixel);
+        }
+
+        public double GetTime()
+        {
+            return time;
+        }
+
+        public double GetXCentroid()
+        {
+            return realCentroidX;
+        }
+
+        public double GetYCentroid()
+        {
+            return realCentroidY;
+        }
+
+        public double GetXVelocity()
+        {
+            return velocityX;
+        }
+
+        public double GetYVelocity()
+        {
+            return velocityY;
+        }
+
+        public double GetNetVelocity()
+        {
+            return velocityNet;
+        }
+
+        public double GetXAcceleration()
+        {
+            return accelerationX;
+        }
+
+        public double GetYAcceleration()
+        {
+            return accelerationY;
+        }
+
+        public double GetNetAcceleration()
+        {
+            return accelerationNet;
+        }
+
+        public double GetVolume()
+        {
+            return volume;
+        }
+
+        public string GetUnit()
+        {
+            return unit;
+        }
+
+        public void SetPrevCentroidValues(double xCentroid, double yCentroid)
+        {
+            prevCentroidX = xCentroid;
+            prevCentroidY = yCentroid;
+        }
+
+        public void SetPrevVelocityValues(double xVelocity, double yVelocity)
+        {
+            prevVelocityX = xVelocity;
+            prevVelocityY = yVelocity;
         }
     }
 }

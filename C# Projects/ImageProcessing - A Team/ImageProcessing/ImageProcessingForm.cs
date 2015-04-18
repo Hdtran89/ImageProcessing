@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ImageProcessing
 {
@@ -17,12 +18,11 @@ namespace ImageProcessing
     {
         string[] images;                //Stores file names of all images
         DropletImage[] dropletImages;   //Stores every DropletImage object
-		
-		
-        bool[,] dropletMatrix;
-        double baseToNeedleHeight; 
+
+
         Bitmap displayedImage;
         int frameRate = 100;
+        double baseToNeedleHeight = 2; //cm
 
         public ImageProcessingForm()
         {
@@ -46,6 +46,12 @@ namespace ImageProcessing
 
                 //Display loading status
                 statusLabel.Text = "Loading data...";
+                int greyscaleThreshold = (int)blackWhiteNumericUpDown.Value;
+
+                //Set the greyscale threshold
+                DropletImage.SetGreyScaleThreshold(greyscaleThreshold);
+
+                DropletImage.ConvertFRtoSecPerImage(frameRate);
 
                 //Create a Droplet Image object for every given image
                 dropletImages = new DropletImage[images.Length];
@@ -69,34 +75,30 @@ namespace ImageProcessing
 
                 //Display the number of files loaded in the status label
                 statusLabel.Text = "Loaded " + images.Length + " images.";
-                DropletImage.ConvertFRtoSecPerImage(frameRate);
-                
-                //Set displayed image to the fourth in the list
-                displayedImage = dropletImages[5].GetBlackWhiteImage();
-                //displayedImage = dropletImages[5].GetDropImage();
-                //Set the image box to display the altered image and calculate stuff behind the scenes
-                currentImagePictureBox.Image = displayedImage;
 
-                DropletImage.UpdateTimeElapsed();
-
-                /*//test next two images
-                displayedImage = dropletImages[6].GetBlackWhiteImage();
-                //Set the image box to display the altered image and calculate stuff behind the scenes
-                currentImagePictureBox.Image = displayedImage;
-                DropletImage.UpdateTimeElapsed();
-
-                displayedImage = dropletImages[7].GetBlackWhiteImage();
-                //Set the image box to display the altered image and calculate stuff behind the scenes
-                currentImagePictureBox.Image = displayedImage;
-                DropletImage.UpdateTimeElapsed();
-                */
-
-                if(baseNeedleHeightTextBox.Text != "")
+                if (baseNeedleHeightTextBox.Text != "")
                 {
                     baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
-                    DropletImage.ConvertPixelToMicron(baseToNeedleHeight); 
                 }
-               
+                DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
+
+                dropletImages[0].PreprocessImage();
+                dropletImages[1].PreprocessImage();
+                dropletImages[0].DetermineCentroid();
+                dropletImages[1].SetPrevCentroidValues(dropletImages[0].GetXCentroid(), dropletImages[0].GetYCentroid());
+                dropletImages[0].DetermineVelocity();
+                dropletImages[1].SetPrevVelocityValues(dropletImages[0].GetXVelocity(), dropletImages[0].GetYVelocity());
+                dropletImages[1].DetermineCentroid();
+                dropletImages[1].DetermineVelocity();
+                dropletImages[1].DetermineAcceleration();
+                dropletImages[1].DetermineVolume();
+                //Set displayed image to the fourth in the list and adjust according to new calibration value
+                //displayedImage = dropletImages[1].GetBlackWhiteImage();
+                displayedImage = dropletImages[0].GetConvergence();
+                //currentImagePictureBox.Image = null;
+                //Set picturebox to black and white image
+                currentImagePictureBox.Image = displayedImage;
+
                 //Enable the 'Run' button and 'Calibrate' button
                 runButton.Enabled = true;
                 runToolStripMenuItem.Enabled = true;
@@ -118,26 +120,106 @@ namespace ImageProcessing
         private void calibrateButton_Click(object sender, EventArgs e)
         {
 
+
             int greyscaleThreshold = (int)blackWhiteNumericUpDown.Value;
-            
+
             //Set the greyscale threshold
             DropletImage.SetGreyScaleThreshold(greyscaleThreshold);
-           
-            //Set displayed image to the fourth in the list and adjust according to new calibration value
-            displayedImage = dropletImages[5].GetBlackWhiteImage();
 
+            dropletImages[0].ClearConvergenceMatrix();
+            //Determine the location of the base and needle using test images
+            int numTestImages = 5;
+            //Always use the first and last images for convergence matrix
+            dropletImages[0].CompareTestArea();
+            dropletImages[dropletImages.Length - 1].CompareTestArea();
+            //Evenly space out the remaining images being used for convergence matrix
+            for (int i = 1; i < numTestImages - 1; i++)
+            {
+                dropletImages[i * (dropletImages.Length / (numTestImages - 1))].CompareTestArea();
+            }
+
+            dropletImages[0].PreprocessImage();
+            dropletImages[0].DetermineCentroid();
+            dropletImages[0].DetermineVelocity();
+            dropletImages[0].DetermineAcceleration();
+            dropletImages[0].DetermineVolume();
+            //Set displayed image to the fourth in the list and adjust according to new calibration value
+            // displayedImage = dropletImages[0].GetBlackWhiteImage();
+            displayedImage = dropletImages[0].GetConvergence();
             //currentImagePictureBox.Image = null;
             //Set picturebox to black and white image
             currentImagePictureBox.Image = displayedImage;
             currentImagePictureBox.Refresh();
-            
+
         }
 
         private void runButton_Click(object sender, EventArgs e)
         {
             frameRate = (int)frameRateNumericUpDown.Value;
             DropletImage.ConvertFRtoSecPerImage(frameRate);
-			//Number of total threads
+			
+            //Determine centroids of each image
+            string labelValue = "Determining Centroids: ";
+            runProgressBar.Maximum = dropletImages.Length;
+            for (int i = 0; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].DetermineCentroid();
+
+                //Update status label and progress bar
+                statusLabel.Text = labelValue + (i + 1).ToString();
+                runProgressBar.Value = i + 1;
+            }
+
+
+            //Determine velocity of each image
+            labelValue = "Determining Velocities: ";
+            for (int i = 0; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].DetermineVelocity();
+
+                //Update status label and progress bar
+                statusLabel.Text = labelValue + (i + 1).ToString();
+                runProgressBar.Value = i + 1;
+            }
+
+            //Determine velocity of each image
+            labelValue = "Determining Accelerations: ";
+            for (int i = 0; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].DetermineAcceleration();
+
+                //Update status label and progress bar
+                statusLabel.Text = labelValue + (i + 1).ToString();
+                runProgressBar.Value = i + 1;
+            }
+
+            //Determine volume of each image
+            labelValue = "Determining Volumes: ";
+            for (int i = 0; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].DetermineVolume();
+
+                //Update status label and progress bar
+                statusLabel.Text = labelValue + (i + 1).ToString();
+                runProgressBar.Value = i + 1;
+            }
+
+            //Create Output object to create Excel file
+            Output output = new Output("dummy.xlsx", dropletImages.Length);
+            statusLabel.Text = "Creating Excel Graphs";
+
+            //Pass information into output
+            for (int i = 0; i < dropletImages.Length; i++)
+            {
+                output.insertRow(dropletImages[i], i);
+            }
+
+            //Create Excel file
+            output.generateExcel();
+            statusLabel.Text = "Processing Complete!";
+
+            /*
+            //Number of total threads
 			int numThreads = 4;
 			
 			//Initialize threads
@@ -201,6 +283,7 @@ namespace ImageProcessing
 			}
 			//Generate excel file
 			output.generateExcel();
+            */
         }
 
 		private void threadedCentroidDetermination(int startIndex, int endIndex){
