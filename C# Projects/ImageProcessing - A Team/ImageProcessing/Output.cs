@@ -69,15 +69,16 @@ namespace ImageProcessing
 
                 //Create header for each workSheet within Excel Workbook
                 xlWSData.Cells[1, "A"] = "";
-                xlWSData.Cells[1, "B"] = "X Centroid";
-                xlWSData.Cells[1, "C"] = "Y Centroid";
-                xlWSData.Cells[1, "D"] = "X Velocity";
-                xlWSData.Cells[1, "E"] = "Y Velocity";
-                xlWSData.Cells[1, "F"] = "Net Velocity";
-                xlWSData.Cells[1, "G"] = "X Acceleration";
-                xlWSData.Cells[1, "H"] = "Y Acceleration";
-                xlWSData.Cells[1, "I"] = "Net Acceleration";
-                xlWSData.Cells[1, "J"] = "Volume";
+                xlWSData.Cells[1, "B"] = "Time";
+                xlWSData.Cells[1, "C"] = "X Centroid";
+                xlWSData.Cells[1, "D"] = "Y Centroid";
+                xlWSData.Cells[1, "E"] = "X Velocity";
+                xlWSData.Cells[1, "F"] = "Y Velocity";
+                xlWSData.Cells[1, "G"] = "Net Velocity";
+                xlWSData.Cells[1, "H"] = "X Acceleration";
+                xlWSData.Cells[1, "I"] = "Y Acceleration";
+                xlWSData.Cells[1, "J"] = "Net Acceleration";
+                xlWSData.Cells[1, "K"] = "Volume";
 
                 //Bold the header in the data worksheet 
                 Excel.Range formatRange;
@@ -106,23 +107,23 @@ namespace ImageProcessing
                 //Creation of Scatterplots 
 
                 //X Centroid
-                CreateScatterPlotGraph(2, "X Centroid", "C");
+                //CreateScatterPlotGraph(2, "X Centroid", "C");
                 //Y Centroid
-                CreateScatterPlotGraph(3, "Y Centroid", "D");
+                //CreateScatterPlotGraph(3, "Y Centroid", "D");
                 //X Velocity
-                CreateScatterPlotGraph(4, "X Velocity", "E");
+                //CreateScatterPlotGraph(4, "X Velocity", "E");
                 //Y Velocity
-                CreateScatterPlotGraph(5, "Y Velocity", "F");
+                //CreateScatterPlotGraph(5, "Y Velocity", "F");
                 //Net Velocity
-                CreateScatterPlotGraph(6, "Net Velocity", "G");
+                //CreateScatterPlotGraph(6, "Net Velocity", "G");
                 //X Acceleration
-                CreateScatterPlotGraph(7, "X Acceleration", "H");
+                //CreateScatterPlotGraph(7, "X Acceleration", "H");
                 //Y Acceleration
-                CreateScatterPlotGraph(8, "Y Acceleration", "I");
+                //CreateScatterPlotGraph(8, "Y Acceleration", "I");
                 //Net Acceleration
-                CreateScatterPlotGraph(9, "Net Acceleration", "J");
+                //CreateScatterPlotGraph(9, "Net Acceleration", "J");
                 //Volume
-                CreateScatterPlotGraph(10, "Volume", "K");
+                //CreateScatterPlotGraph(10, "Volume", "K");
 
                 xlWB.SaveAs(fileName);
 

@@ -704,6 +704,7 @@ namespace ImageProcessing
 
         public double GetTime()
         {
+            DetermineTime();
             return time;
         }
 
