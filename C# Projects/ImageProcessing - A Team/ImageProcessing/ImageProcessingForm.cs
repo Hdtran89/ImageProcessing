@@ -155,54 +155,74 @@ namespace ImageProcessing
 
         private void runButton_Click(object sender, EventArgs e)
         {
+            //statusLabel.Text = "Processing...";
             frameRate = (int)frameRateNumericUpDown.Value;
             DropletImage.ConvertFRtoSecPerImage(frameRate);
 			
-            //Determine centroids of each image
-            string labelValue = "Determining Centroids: ";
+            //Preprocess each image
+            string labelValue = "Preprocessing Images: ";
+            int currentProgress = 0;
             runProgressBar.Maximum = dropletImages.Length;
-            for (int i = 0; i < dropletImages.Length; i++)
+            Parallel.ForEach(dropletImages, dropletImage =>
             {
-                dropletImages[i].DetermineCentroid();
+                dropletImage.PreprocessImage();
 
                 //Update status label and progress bar
-                statusLabel.Text = labelValue + (i + 1).ToString();
-                runProgressBar.Value = i + 1;
-            }
+                //statusLabel.Text = labelValue + (i + 1).ToString();
+                currentProgress++;
+                //runProgressBar.Value = currentProgress;
+            });
+            
+            //Determine centroids of each image
+            labelValue = "Determining Centroids: ";
+            runProgressBar.Maximum = dropletImages.Length;
+            currentProgress = 0;
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.DetermineCentroid();
+
+                //Update status label and progress bar
+                //statusLabel.Text = labelValue + (i + 1).ToString();
+                currentProgress++;
+                //runProgressBar.Value = currentProgress;
+            });
 
 
             //Determine velocity of each image
             labelValue = "Determining Velocities: ";
-            for (int i = 0; i < dropletImages.Length; i++)
+            Parallel.ForEach(dropletImages, dropletImage =>
             {
-                dropletImages[i].DetermineVelocity();
+                dropletImage.DetermineVelocity();
 
                 //Update status label and progress bar
-                statusLabel.Text = labelValue + (i + 1).ToString();
-                runProgressBar.Value = i + 1;
-            }
+                //statusLabel.Text = labelValue + (i + 1).ToString();
+                currentProgress++;
+                //runProgressBar.Value = currentProgress;
+            });
 
             //Determine velocity of each image
             labelValue = "Determining Accelerations: ";
-            for (int i = 0; i < dropletImages.Length; i++)
+            Parallel.ForEach(dropletImages, dropletImage =>
             {
-                dropletImages[i].DetermineAcceleration();
+                dropletImage.DetermineAcceleration();
 
                 //Update status label and progress bar
-                statusLabel.Text = labelValue + (i + 1).ToString();
-                runProgressBar.Value = i + 1;
-            }
+                //statusLabel.Text = labelValue + (i + 1).ToString();
+                currentProgress++;
+                //runProgressBar.Value = currentProgress;
+            });
 
             //Determine volume of each image
             labelValue = "Determining Volumes: ";
-            for (int i = 0; i < dropletImages.Length; i++)
+            Parallel.ForEach(dropletImages, dropletImage =>
             {
-                dropletImages[i].DetermineVolume();
+                dropletImage.DetermineVolume();
 
                 //Update status label and progress bar
-                statusLabel.Text = labelValue + (i + 1).ToString();
-                runProgressBar.Value = i + 1;
-            }
+                //statusLabel.Text = labelValue + (i + 1).ToString();
+                currentProgress++;
+                //runProgressBar.Value = currentProgress;
+            });
 
             //Create Output object to create Excel file
             Output output = new Output("dummy.xlsx", dropletImages.Length);
@@ -217,7 +237,7 @@ namespace ImageProcessing
             //Create Excel file
             output.generateExcel();
             statusLabel.Text = "Processing Complete!";
-
+            
             /*
             //Number of total threads
 			int numThreads = 4;
