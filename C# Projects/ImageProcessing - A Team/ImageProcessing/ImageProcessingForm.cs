@@ -19,10 +19,11 @@ namespace ImageProcessing
         string[] images;                //Stores file names of all images
         DropletImage[] dropletImages;   //Stores every DropletImage object
 
-
         Bitmap displayedImage;
         int frameRate = 100;
         double baseToNeedleHeight = 2; //cm
+        //string folderPath;
+        LoadingWindow loadingWindow = new LoadingWindow();
 
         public ImageProcessingForm()
         {
@@ -35,6 +36,8 @@ namespace ImageProcessing
 
             if (result == DialogResult.OK)
             {
+                //loadingWindow.Show();
+                //folderPath = loadImagesDialog.SelectedPath;
                 //Store file names of images within selected folder - both .TIF and .BMP files
                 string[] tifImages = Directory.GetFiles(loadImagesDialog.SelectedPath, "*.tif");
                 string[] bmpImages = Directory.GetFiles(loadImagesDialog.SelectedPath, "*.bmp");
@@ -43,59 +46,61 @@ namespace ImageProcessing
                 images = new string[tifImages.Length + bmpImages.Length];
                 tifImages.CopyTo(images, 0);
                 bmpImages.CopyTo(images, tifImages.Length);
+                runProgressBar.Maximum = images.Length;
 
+            }
+
+            if (images.Length != 0)
+            {
+                 
                 //Display loading status
                 statusLabel.Text = "Loading data...";
-                int greyscaleThreshold = (int)blackWhiteNumericUpDown.Value;
-
-                //Set the greyscale threshold
-                DropletImage.SetGreyScaleThreshold(greyscaleThreshold);
-
-                DropletImage.ConvertFRtoSecPerImage(frameRate);
-
                 //Create a Droplet Image object for every given image
                 dropletImages = new DropletImage[images.Length];
-                runProgressBar.Maximum = images.Length;
                 for (int i = 0; i < images.Length; i++)
                 {
                     //Create the Droplet Image object
                     dropletImages[i] = new DropletImage(new Bitmap(images[i]), i);
                 }
 
-                //Determine the location of the base and needle using test images
-                int numTestImages = 5;
-                //Always use the first and last images for convergence matrix
-                dropletImages[0].CompareTestArea();
-                dropletImages[dropletImages.Length - 1].CompareTestArea();
-                //Evenly space out the remaining images being used for convergence matrix
-                for (int i = 1; i < numTestImages - 1; i++)
+                //Convert framesPerSec to seconds per image
+                if (frameRateNumericUpDown.Value != 0)
                 {
-                    dropletImages[i * (dropletImages.Length / (numTestImages - 1))].CompareTestArea();
+                    frameRate = (int)frameRateNumericUpDown.Value;
                 }
+                DropletImage.ConvertFRtoSecPerImage(frameRate);
 
+                /* Create convergence matrix containing location of just needle and base */
+                /* Based on Black/White Calibration value */
+                CreateConvergenceMatrix();
+
+                /* Use distance between base and needle in pixels 
+                   and baseNeedleHeight in cm to calculate cm per pixel */
+                ConvertPxToCm();
+                
                 //Display the number of files loaded in the status label
                 statusLabel.Text = "Loaded " + images.Length + " images.";
 
-                if (baseNeedleHeightTextBox.Text != "")
-                {
-                    baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
-                }
-                DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
-
                 dropletImages[0].PreprocessImage();
-                dropletImages[1].PreprocessImage();
+                //dropletImages[1].PreprocessImage();
                 dropletImages[0].DetermineCentroid();
-                dropletImages[1].SetPrevCentroidValues(dropletImages[0].GetXCentroid(), dropletImages[0].GetYCentroid());
+                //dropletImages[1].SetPrevCentroidValues(dropletImages[0].GetXCentroid(), dropletImages[0].GetYCentroid());
                 dropletImages[0].DetermineVelocity();
+                dropletImages[0].DetermineAcceleration();
+                dropletImages[0].DetermineVolume();
+                /*
                 dropletImages[1].SetPrevVelocityValues(dropletImages[0].GetXVelocity(), dropletImages[0].GetYVelocity());
                 dropletImages[1].DetermineCentroid();
                 dropletImages[1].DetermineVelocity();
                 dropletImages[1].DetermineAcceleration();
                 dropletImages[1].DetermineVolume();
+                 */
+
                 //Set displayed image to the fourth in the list and adjust according to new calibration value
-                //displayedImage = dropletImages[1].GetBlackWhiteImage();
-                displayedImage = dropletImages[0].GetConvergence();
-                //currentImagePictureBox.Image = null;
+                //displayedImage = dropletImages[0].GetBlackWhiteImage();
+                //displayedImage = dropletImages[0].GetConvergence();
+                displayedImage = dropletImages[0].GetDropImage();
+                
                 //Set picturebox to black and white image
                 currentImagePictureBox.Image = displayedImage;
 
@@ -103,8 +108,14 @@ namespace ImageProcessing
                 runButton.Enabled = true;
                 runToolStripMenuItem.Enabled = true;
                 calibrateButton.Enabled = true;
-
+                
             }
+            else
+            {
+                MessageBox.Show("Image folder was not selected.", "Loading Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            //loadingWindow.Hide();
         }
 
         private void baseNeedleHeightTextBox_TextChanged(object sender, EventArgs e)
@@ -117,16 +128,48 @@ namespace ImageProcessing
 
         }
 
+        //Note: Calculations change everytime you calibrate... for some reason
         private void calibrateButton_Click(object sender, EventArgs e)
         {
 
+            Graphics graphic = Graphics.FromImage(currentImagePictureBox.Image);
+            graphic.Clear(Color.White);//Color to fill the background and reset the box
+
+            /* Create convergence matrix containing location of just needle and base */
+            CreateConvergenceMatrix();
+
+            /* Use distance between base and needle in pixels 
+               and baseNeedleHeight in cm to calculate cm per pixel */
+            ConvertPxToCm();
+
+            dropletImages[0].PreprocessImage();
+            dropletImages[0].DetermineCentroid();
+            dropletImages[0].DetermineVelocity();
+            dropletImages[0].DetermineAcceleration();
+            dropletImages[0].DetermineVolume();
+
+            //Set displayed image to the fourth in the list and adjust according to new calibration value
+            //displayedImage = dropletImages[0].GetBlackWhiteImage();
+            //displayedImage = dropletImages[0].GetConvergence();
+            displayedImage = dropletImages[0].GetDropImage();
+            
+            //Set picturebox to black and white image
+            //currentImagePictureBox.Image = null;
+            currentImagePictureBox.Image = displayedImage;
+            //currentImagePictureBox.Refresh();
+
+
+        }
+
+        private void CreateConvergenceMatrix()
+        {
 
             int greyscaleThreshold = (int)blackWhiteNumericUpDown.Value;
-
             //Set the greyscale threshold
             DropletImage.SetGreyScaleThreshold(greyscaleThreshold);
 
-            dropletImages[0].ClearConvergenceMatrix();
+            //Initialize convergence matrix to be all true.
+            dropletImages[0].InitializeConvergenceMatrix();
             //Determine the location of the base and needle using test images
             int numTestImages = 5;
             //Always use the first and last images for convergence matrix
@@ -137,20 +180,17 @@ namespace ImageProcessing
             {
                 dropletImages[i * (dropletImages.Length / (numTestImages - 1))].CompareTestArea();
             }
+        }
 
-            dropletImages[0].PreprocessImage();
-            dropletImages[0].DetermineCentroid();
-            dropletImages[0].DetermineVelocity();
-            dropletImages[0].DetermineAcceleration();
-            dropletImages[0].DetermineVolume();
-            //Set displayed image to the fourth in the list and adjust according to new calibration value
-            // displayedImage = dropletImages[0].GetBlackWhiteImage();
-            displayedImage = dropletImages[0].GetConvergence();
-            //currentImagePictureBox.Image = null;
-            //Set picturebox to black and white image
-            currentImagePictureBox.Image = displayedImage;
-            currentImagePictureBox.Refresh();
-
+        private void ConvertPxToCm()
+        {
+            //Convert pixels to cm units using baseNeedleHeight relationship
+            // -based on convergence matrix
+            if (baseNeedleHeightTextBox.Text != "")
+            {
+                baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
+            }
+            DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
         }
 
         private void runButton_Click(object sender, EventArgs e)
