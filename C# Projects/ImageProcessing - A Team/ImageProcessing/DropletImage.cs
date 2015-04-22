@@ -25,7 +25,7 @@ namespace ImageProcessing
 
         //=== Image information ===
         int imageIndex;                     //The index of this image in the data set
-        static int greyScaleThreshold = 32; //The value used to determine if a pixel will be white or black
+        static int greyScaleThreshold; //The value used to determine if a pixel will be white or black
         bool[,] blackWhiteMatrix;           //Matrix describing whether or not each pixel is black
         static bool[,] convergenceMatrix;   //Location of the base/needle in every image
 
@@ -78,35 +78,17 @@ namespace ImageProcessing
             realImage = image;
             imageIndex = index;
             DetermineTime();
-            dropImage = new Bitmap(realImage.Width, realImage.Height);
-            //Initialize convergence matrix once
-            if (index == 0)
-            {
-                convergenceMatrix = new bool[image.Width, image.Height];
-                //Initialize every cell in the convergence matrix to true
-                for (int y = 0; y < image.Height; y++)
-                {
-                    for (int x = 0; x < image.Width; x++)
-                    {
-                        convergenceMatrix[x, y] = true;
-                    }
-                }
-            }
-
-            //Initialize black/white matrix
-            blackWhiteMatrix = new bool[image.Width, image.Height];
-            circumferencePoints = new List<Coord>();
-
         }
 
         private void CreateBlackWhiteMatrix()
         {
+            //Initialize black/white matrix
+            blackWhiteMatrix = new bool[realImage.Width, realImage.Height];
             //Loop through each pixel in the image
             for (int y = 0; y < realImage.Height; y++)
             {
                 for (int x = 0; x < realImage.Width; x++)
                 {
-                    blackWhiteMatrix[x, y] = false;
                     Color originalcolor = realImage.GetPixel(x, y);             //Grayscaling the pixel in question
                     int grayscale = (int)((originalcolor.R * .3) + (originalcolor.G * .59) + (originalcolor.B * .11));
 
@@ -123,19 +105,20 @@ namespace ImageProcessing
             }
         }
 
-        //Compare the current convergence matrix to this image and update convergence matrix accordingly
-        public void ClearConvergenceMatrix()
+        //Initialize convergence matrix to be all true.
+        public void InitializeConvergenceMatrix()
         {
-            
+            convergenceMatrix = new bool[realImage.Width, realImage.Height];
             //Compare this matrix to the convergence matrix
             for (int y = 0; y < realImage.Height; y++)
             {
                 for (int x = 0; x < realImage.Width; x++)
                 {
-                    convergenceMatrix[x, y] = false;
+                    convergenceMatrix[x, y] = true;
                 }
             }
         }
+
         //Compare the current convergence matrix to this image and update convergence matrix accordingly
         public void CompareTestArea()
         {
@@ -170,7 +153,6 @@ namespace ImageProcessing
                 //col
                 for (int x = 0; x < convergenceMatrix.GetLength(0); x++)
                 {
-                    dropletMatrix[x, y] = false;
                     //if convergence matrix is false and dropletImage is true, then thats the drop
                     if (convergenceMatrix[x, y] == false && blackWhiteMatrix[x, y] == true)
                     {
@@ -197,24 +179,30 @@ namespace ImageProcessing
                 int leftPixelCnt = 0;
                 int rightPixelCnt = 0;
 
+                //for each row - sweep in x direction from left 
+                //do so until you run into 3(pixelThreshold) consecutive possible drop pixels,
                 while (x < dropletMatrix.GetLength(0) && leftPixelCnt < pixelThreshold)
                 {
-                    //if dropletMatrix is true, increment the leftPixelCnt
+                    //if dropletMatrix is true (you run into, increment the leftPixelCnt
                     if ((dropletMatrix[x, y] == true))
                     {
                         leftPixelCnt++;
                     }
                     else
                     {
-                        leftPixelCnt = 0;
+                        leftPixelCnt = 0; //start count over if you hit a non drop pixel
                     }
                     x++;
                 }
+                //if you run into 3(pixelThreshold) consecutive possible drop pixels sweeping from the left
+                //mark that left most X where you had hit 3 drop pixels
                 if (leftPixelCnt == pixelThreshold)
                 {
                     leftX = x;
                 }
 
+                //for each row - sweep in x direction from right 
+                //do so until you run into 3(pixelThreshold) consecutive possible drop pixels,
                 x = dropletMatrix.GetLength(0) - 1;
                 while (x > 0 && rightPixelCnt < pixelThreshold)
                 {
@@ -230,14 +218,21 @@ namespace ImageProcessing
                     }
                     x--;
                 }
+
+                //if you run into 3(pixelThreshold) consecutive possible drop pixels sweeping from the right
+                //mark that right most X where you had hit 3 drop pixels
                 if (rightPixelCnt == pixelThreshold)
                     rightX = x;
 
+                //if during left and right sweeps, you hit at least 3 drop pixels,
+                //these x points mark the first encounter of the actual drop from the side 
+                //and make up the circumference 
+                //(but must substract/add 3 first to represent true circumference location)
                 if (leftX != 0 && rightX != 0)
                 {
                     AddCircumferencePoint(leftX - pixelThreshold, y);
                     AddCircumferencePoint(rightX + pixelThreshold, y);
-                    //fill in droplet
+                    //fill in droplet between these circumference points in that row
                     for (int i = leftX; i < rightX; i++)
                     {
                         dropletMatrix[i, y] = true;
@@ -252,7 +247,6 @@ namespace ImageProcessing
             //columns of dropletMatrix 
             for (int x = 0; x < dropletMatrix.GetLength(0); x++)
             {
-                
                 int topY = 0;
                 int bottomY = 0;
                 int topPixelCnt = 0;
@@ -270,7 +264,7 @@ namespace ImageProcessing
                     }
                     else
                     {
-                        topPixelCnt = 0;
+                        topPixelCnt = 0; //start count over if you hit a non drop pixel
                     }
                     y++;
                 }
@@ -312,9 +306,10 @@ namespace ImageProcessing
                 }
             }
         }
-        //eliminate white center
+        //eliminates white center in drop by finding circumference of drop and filling in between
         private void FillDroplet()
         {
+            circumferencePoints = new List<Coord>();
             XDropletSweep();
             YDropletSweep();
         }
@@ -427,32 +422,46 @@ namespace ImageProcessing
 
         public void PreprocessImage()
         {
-            CreateBlackWhiteMatrix();
-            IsolateDroplet();
-            FillDroplet();
-            RemoveOutliers();
+            //initialize a blackWhiteMatrix and fill it based on the greyscale
+            CreateBlackWhiteMatrix(); 
+            // initialize a dropletMatrix and fill it based on difference between blackWhiteMatrix and convergence
+            IsolateDroplet(); 
+            //finding circumferencePoints of drop by looking at dropletMatrix (circumferencePoints used to calc centroid)
+            FillDroplet(); 
+            //remove added circumferencePoints that actually do not comprise the droplets circumference
+            RemoveOutliers(); 
         }
 
         //Calc centroid Using the sums of the x and y coordinates of the circumference points.
         public void DetermineCentroid()
         {
-            foreach (Coord circumPoint in circumferencePoints)
+            if (circumferencePoints.Count != 0)
             {
-                centroidX += circumPoint.xCoord;
-                centroidY += circumPoint.yCoord;
+                foreach (Coord circumPoint in circumferencePoints)
+                {
+                    centroidX += circumPoint.xCoord;
+                    centroidY += circumPoint.yCoord;
+                }
+
+                centroidX /= circumferencePoints.Count;
+                centroidY /= circumferencePoints.Count;
+            }
+            else //no droplet detected
+            {
+                centroidX = 0;
+                centroidY = 0;
             }
 
-            centroidX /= circumferencePoints.Count;
-            centroidY /= circumferencePoints.Count;
+            Console.WriteLine("x: " + centroidX + " y: " + centroidY);
             realCentroidX = centroidX * cmPerPixel;
             realCentroidY = centroidY * cmPerPixel;
-
+            
         }
 
         //Calculate Velocity change between centroid distances of this and previous image
         public void DetermineVelocity()
         {
-            Console.WriteLine("prevCentroidX: " + prevCentroidX + " prevCentroidY: " + prevCentroidY);
+            //Console.WriteLine("prevCentroidX: " + prevCentroidX + " prevCentroidY: " + prevCentroidY);
             if (time != 0)
             {
                 velocityX = (realCentroidX - prevCentroidX)/ secondsPerImage;
@@ -484,16 +493,22 @@ namespace ImageProcessing
             accelerationNet = Math.Sqrt(Math.Pow(accelerationX, 2) + Math.Pow(accelerationY, 2));
         }
 
+        //Determine volume by finding horizontal and vertical diameters
         public void DetermineVolume()
         {
             //initialize min and max
-            int minX = realImage.Width;
-            int maxX = 0;
-            int minY = realImage.Height;
-            int maxY = 0;
+            int minX = realImage.Width; /*represents left most circumference point - 
+                                         *must initialize to right most point of image to start */
+            int maxX = 0;               /*represents right most circumference point - 
+                                         *must initialize to left most point of image to start */
+            int minY = realImage.Height; /*represents top most circumference point - 
+                                         *must initialize to bottom most point of image to start */
+            int maxY = 0;               /*represents bottom most circumference point - 
+                                         *must initialize to top most point of image to start */
 
             double horizontalDiam, verticalDiam = 0;
 
+            //find highest and lowest, left most and right most, points of drop to calculate diameters
             foreach (Coord circumPoint in circumferencePoints)
             {
                 if (circumPoint.xCoord <= minX)
@@ -516,30 +531,17 @@ namespace ImageProcessing
             volume = (4.0 / 3.0) * Math.PI * Math.Pow(radius, 3);
         }
 
-        /* will not be called by threads - calculations determined individually - just for testing
-        public void PerformCalculations()
-        {
-            DetermineCentroid();
-            DetermineVelocity();
-            Console.WriteLine("sec: " + time);
-            Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
-            Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
-            DetermineAcceleration();
-            Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
-            DetermineVolume();
-            Console.WriteLine("volume: " + volume);
-        }
-        */
-
         //Show just the complete drop and nothing else
         public Bitmap GetDropImage()
         {
+            /*
             Console.WriteLine("sec: " + time);
             Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
             Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
             Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
             Console.WriteLine("volume: " + volume);
-            
+            */
+            dropImage = new Bitmap(realImage.Width, realImage.Height);
             for (int y = 0; y < realImage.Height; y++)
             {
                 for (int x = 0; x < realImage.Width; x++)
@@ -566,19 +568,23 @@ namespace ImageProcessing
         //show the complete drop plus needle and base
         public Bitmap GetBlackWhiteImage()
         {
+            /*
             Console.WriteLine("sec: " + time);
             Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
             Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
             Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
             Console.WriteLine("volume: " + volume);
-
-            //Initialize the black and white image to the real image
-            blackWhiteImage = realImage;
+            */
+            blackWhiteImage = new Bitmap(realImage.Width, realImage.Height);
             //Lauded llama code to convert each pixel to black or white
             for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
             {
                 for (int x = 0; x < realImage.Width; x++)                       //columuns (xpos) in bitmap
                 {
+                    // Get the color of a pixel within realImage.
+                    Color pixelColor = realImage.GetPixel(x, y);
+                    //Color in that pixel in the new blackWHiteImage
+                    blackWhiteImage.SetPixel(x, y, pixelColor);
                     //Create black/white image based on greyscale changes shown in blackwhiteMatrix and
                     //filled drop
                     if (blackWhiteMatrix[x, y] == true || dropletMatrix[x, y] == true)
@@ -596,13 +602,23 @@ namespace ImageProcessing
         //show the complete drop plus needle and base
         public Bitmap GetConvergence()
         {
+            /*
+            Console.WriteLine("sec: " + time);
+            Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
+            Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
+            Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
+            Console.WriteLine("volume: " + volume);*/
             //Initialize the black and white image to the real image
-            blackWhiteImage = realImage;
+            blackWhiteImage = new Bitmap(realImage.Width, realImage.Height);
             //Lauded llama code to convert each pixel to black or white
             for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
             {
                 for (int x = 0; x < realImage.Width; x++)                       //columuns (xpos) in bitmap
                 {
+                    // Get the color of a pixel within realImage.
+                    Color pixelColor = realImage.GetPixel(x, y);
+                    //Color in that pixel in the new blackWHiteImage
+                    blackWhiteImage.SetPixel(x, y, pixelColor);
                     //Create black/white image based on greyscale changes shown in blackwhiteMatrix and
                     //filled drop
                     if (convergenceMatrix[x, y] == true)
@@ -612,7 +628,7 @@ namespace ImageProcessing
                 }
             }
             //set centroid pixel to black in drop image
-            blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Green);
+           // blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Green);
 
             return blackWhiteImage;
         }
@@ -633,7 +649,6 @@ namespace ImageProcessing
             time = imageIndex * secondsPerImage;
         }
 
-        //Not done
         //Use amount of pixels measured between bottom of needle and top of base in image 
         //to relate to this same distance in mm units in real setUp
         public static void ConvertPixelToMicron(double baseToNeedleInCM)
