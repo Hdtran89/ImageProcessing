@@ -48,84 +48,73 @@ namespace ImageProcessing
                 bmpImages.CopyTo(images, tifImages.Length);
                 runProgressBar.Maximum = images.Length;
 
-            }
-
-            if (images.Length != 0)
-            {
-                 
-                //Display loading status
-                statusLabel.Text = "Loading data...";
-                //Create a Droplet Image object for every given image
-                dropletImages = new DropletImage[images.Length];
-                for (int i = 0; i < images.Length; i++)
+                if (images.Length != 0)
                 {
-                    //Create the Droplet Image object
-                    dropletImages[i] = new DropletImage(new Bitmap(images[i]), i);
+
+                    //Display loading status
+                    statusLabel.Text = "Loading data...";
+                    //Create a Droplet Image object for every given image
+                    dropletImages = new DropletImage[images.Length];
+                    for (int i = 0; i < images.Length; i++)
+                    {
+                        //Create the Droplet Image object
+                        dropletImages[i] = new DropletImage(new Bitmap(images[i]), i);
+                    }
+
+                    //Convert framesPerSec to seconds per image
+                    if (frameRateNumericUpDown.Value != 0)
+                    {
+                        frameRate = (int)frameRateNumericUpDown.Value;
+                    }
+                    DropletImage.ConvertFRtoSecPerImage(frameRate);
+
+                    /* Create convergence matrix containing location of just needle and base */
+                    /* Based on Black/White Calibration value */
+                    CreateConvergenceMatrix();
+
+                    /* Use distance between base and needle in pixels 
+                       and baseNeedleHeight in cm to calculate cm per pixel */
+                    ConvertPxToCm();
+
+                    //Display the number of files loaded in the status label
+                    statusLabel.Text = "Loaded " + images.Length + " images.";
+
+                    dropletImages[0].PreprocessImage();
+                    //dropletImages[1].PreprocessImage();
+                    dropletImages[0].DetermineCentroid();
+                    //dropletImages[1].SetPrevCentroidValues(dropletImages[0].GetXCentroid(), dropletImages[0].GetYCentroid());
+                    dropletImages[0].DetermineVelocity();
+                    dropletImages[0].DetermineAcceleration();
+                    dropletImages[0].DetermineVolume();
+                    /*
+                    dropletImages[1].SetPrevVelocityValues(dropletImages[0].GetXVelocity(), dropletImages[0].GetYVelocity());
+                    dropletImages[1].DetermineCentroid();
+                    dropletImages[1].DetermineVelocity();
+                    dropletImages[1].DetermineAcceleration();
+                    dropletImages[1].DetermineVolume();
+                     */
+
+                    //Set displayed image to the fourth in the list and adjust according to new calibration value
+                    //displayedImage = dropletImages[0].GetBlackWhiteImage();
+                    //displayedImage = dropletImages[0].GetConvergence();
+                    displayedImage = dropletImages[0].GetDropImage();
+
+                    //Set picturebox to black and white image
+                    currentImagePictureBox.Image = displayedImage;
+
+                    //Enable the 'Run' button and 'Calibrate' button
+                    runButton.Enabled = true;
+                    runToolStripMenuItem.Enabled = true;
+                    calibrateButton.Enabled = true;
+
+                }
+                else
+                {
+                    MessageBox.Show("Image folder was not selected.", "Loading Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                //Convert framesPerSec to seconds per image
-                if (frameRateNumericUpDown.Value != 0)
-                {
-                    frameRate = (int)frameRateNumericUpDown.Value;
-                }
-                DropletImage.ConvertFRtoSecPerImage(frameRate);
-
-                /* Create convergence matrix containing location of just needle and base */
-                /* Based on Black/White Calibration value */
-                CreateConvergenceMatrix();
-
-                /* Use distance between base and needle in pixels 
-                   and baseNeedleHeight in cm to calculate cm per pixel */
-                ConvertPxToCm();
-                
-                //Display the number of files loaded in the status label
-                statusLabel.Text = "Loaded " + images.Length + " images.";
-
-                dropletImages[0].PreprocessImage();
-                //dropletImages[1].PreprocessImage();
-                dropletImages[0].DetermineCentroid();
-                //dropletImages[1].SetPrevCentroidValues(dropletImages[0].GetXCentroid(), dropletImages[0].GetYCentroid());
-                dropletImages[0].DetermineVelocity();
-                dropletImages[0].DetermineAcceleration();
-                dropletImages[0].DetermineVolume();
-                /*
-                dropletImages[1].SetPrevVelocityValues(dropletImages[0].GetXVelocity(), dropletImages[0].GetYVelocity());
-                dropletImages[1].DetermineCentroid();
-                dropletImages[1].DetermineVelocity();
-                dropletImages[1].DetermineAcceleration();
-                dropletImages[1].DetermineVolume();
-                 */
-
-                //Set displayed image to the fourth in the list and adjust according to new calibration value
-                //displayedImage = dropletImages[0].GetBlackWhiteImage();
-                //displayedImage = dropletImages[0].GetConvergence();
-                displayedImage = dropletImages[0].GetDropImage();
-                
-                //Set picturebox to black and white image
-                currentImagePictureBox.Image = displayedImage;
-
-                //Enable the 'Run' button and 'Calibrate' button
-                runButton.Enabled = true;
-                runToolStripMenuItem.Enabled = true;
-                calibrateButton.Enabled = true;
-                
             }
-            else
-            {
-                MessageBox.Show("Image folder was not selected.", "Loading Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
             //loadingWindow.Hide();
-        }
-
-        private void baseNeedleHeightTextBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void blackWhiteNumericUpDown_ValueChanged(object sender, EventArgs e)
-        {
-
         }
 
         //Note: Calculations change everytime you calibrate... for some reason
@@ -197,6 +186,9 @@ namespace ImageProcessing
         {
             //Begin execution time timer
             int startTime = System.Environment.TickCount;
+
+            CreateConvergenceMatrix();
+            ConvertPxToCm();
 
             //statusLabel.Text = "Processing...";
             frameRate = (int)frameRateNumericUpDown.Value;
