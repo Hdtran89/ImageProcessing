@@ -107,23 +107,23 @@ namespace ImageProcessing
                 //Creation of Scatterplots 
 
                 //X Centroid
-                //CreateScatterPlotGraph(2, "X Centroid", "C");
+                CreateScatterPlotGraph(2, "X Centroid", "C", xlWSData);
                 //Y Centroid
-                //CreateScatterPlotGraph(3, "Y Centroid", "D");
+                CreateScatterPlotGraph(3, "Y Centroid", "D", xlWSData);
                 //X Velocity
-                //CreateScatterPlotGraph(4, "X Velocity", "E");
+                CreateScatterPlotGraph(4, "X Velocity", "E", xlWSData);
                 //Y Velocity
-                //CreateScatterPlotGraph(5, "Y Velocity", "F");
+                CreateScatterPlotGraph(5, "Y Velocity", "F", xlWSData);
                 //Net Velocity
-                //CreateScatterPlotGraph(6, "Net Velocity", "G");
+                CreateScatterPlotGraph(6, "Net Velocity", "G", xlWSData);
                 //X Acceleration
-                //CreateScatterPlotGraph(7, "X Acceleration", "H");
+                CreateScatterPlotGraph(7, "X Acceleration", "H", xlWSData);
                 //Y Acceleration
-                //CreateScatterPlotGraph(8, "Y Acceleration", "I");
+                CreateScatterPlotGraph(8, "Y Acceleration", "I", xlWSData);
                 //Net Acceleration
-                //CreateScatterPlotGraph(9, "Net Acceleration", "J");
+                CreateScatterPlotGraph(9, "Net Acceleration", "J", xlWSData);
                 //Volume
-                //CreateScatterPlotGraph(10, "Volume", "K");
+                CreateScatterPlotGraph(10, "Volume", "K", xlWSData);
 
                 xlWB.SaveAs(fileName);
 
@@ -139,7 +139,7 @@ namespace ImageProcessing
         //@param int        graphNum            gets worksheet number
         //@param string     scatterPlotNmae     gets name of scatterplot
         //@param string     dataColumn          gets the column for each set of data (velocity, acceleraton...)
-        private void CreateScatterPlotGraph(int graphNum, string scatterPlotName, string dataColumn)
+        private void CreateScatterPlotGraph(int graphNum, string scatterPlotName, string dataColumn, Excel._Worksheet xlWSData)
         {
             Excel._Worksheet XlWSScattPlot = (Excel._Worksheet)xlWB.Worksheets.get_Item(graphNum);
             XlWSScattPlot.Name = scatterPlotName;
