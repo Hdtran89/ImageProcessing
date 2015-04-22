@@ -422,6 +422,8 @@ namespace ImageProcessing
 
         public void PreprocessImage()
         {
+            //Determine the time the image occured
+            DetermineTime();
             //initialize a blackWhiteMatrix and fill it based on the greyscale
             CreateBlackWhiteMatrix(); 
             // initialize a dropletMatrix and fill it based on difference between blackWhiteMatrix and convergence
@@ -435,22 +437,18 @@ namespace ImageProcessing
         //Calc centroid Using the sums of the x and y coordinates of the circumference points.
         public void DetermineCentroid()
         {
-            if (circumferencePoints.Count != 0)
-            {
-                foreach (Coord circumPoint in circumferencePoints)
-                {
-                    centroidX += circumPoint.xCoord;
-                    centroidY += circumPoint.yCoord;
-                }
+            centroidX = 0;
+            centroidY = 0;
 
-                centroidX /= circumferencePoints.Count;
-                centroidY /= circumferencePoints.Count;
-            }
-            else //no droplet detected
+            foreach (Coord circumPoint in circumferencePoints)
             {
-                centroidX = 0;
-                centroidY = 0;
+                centroidX += circumPoint.xCoord;
+                centroidY += circumPoint.yCoord;
             }
+
+            centroidX /= circumferencePoints.Count;
+            centroidY /= circumferencePoints.Count;
+            
 
             Console.WriteLine("x: " + centroidX + " y: " + centroidY);
             realCentroidX = centroidX * cmPerPixel;

@@ -22,7 +22,7 @@ namespace ImageProcessing
         Bitmap displayedImage;
         int frameRate = 100;
         double baseToNeedleHeight = 2; //cm
-        //string folderPath;
+        string folderPath;
         LoadingWindow loadingWindow = new LoadingWindow();
 
         public ImageProcessingForm()
@@ -195,12 +195,17 @@ namespace ImageProcessing
 
         private void runButton_Click(object sender, EventArgs e)
         {
+            //Begin execution time timer
+            int startTime = System.Environment.TickCount;
+
             //statusLabel.Text = "Processing...";
             frameRate = (int)frameRateNumericUpDown.Value;
             DropletImage.ConvertFRtoSecPerImage(frameRate);
-			
+
             //Preprocess each image
             string labelValue = "Preprocessing Images: ";
+            statusLabel.Text = labelValue;
+            Application.DoEvents();
             int currentProgress = 0;
             runProgressBar.Maximum = dropletImages.Length;
             Parallel.ForEach(dropletImages, dropletImage =>
@@ -212,9 +217,11 @@ namespace ImageProcessing
                 currentProgress++;
                 //runProgressBar.Value = currentProgress;
             });
-            
+
             //Determine centroids of each image
             labelValue = "Determining Centroids: ";
+            statusLabel.Text = labelValue;
+            Application.DoEvents();
             runProgressBar.Maximum = dropletImages.Length;
             currentProgress = 0;
             Parallel.ForEach(dropletImages, dropletImage =>
@@ -227,9 +234,16 @@ namespace ImageProcessing
                 //runProgressBar.Value = currentProgress;
             });
 
+            //Pass the previous image's centroid to each image
+            for (int i = 1; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].SetPrevCentroidValues(dropletImages[i - 1].GetXCentroid(), dropletImages[i - 1].GetYCentroid());
+            }
 
             //Determine velocity of each image
             labelValue = "Determining Velocities: ";
+            statusLabel.Text = labelValue;
+            Application.DoEvents();
             Parallel.ForEach(dropletImages, dropletImage =>
             {
                 dropletImage.DetermineVelocity();
@@ -240,8 +254,16 @@ namespace ImageProcessing
                 //runProgressBar.Value = currentProgress;
             });
 
-            //Determine velocity of each image
+            //Pass the previous image's velocity to each image
+            for (int i = 1; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].SetPrevVelocityValues(dropletImages[i - 1].GetXVelocity(), dropletImages[i - 1].GetYVelocity());
+            }
+
+            //Determine acceleration of each image
             labelValue = "Determining Accelerations: ";
+            statusLabel.Text = labelValue;
+            Application.DoEvents();
             Parallel.ForEach(dropletImages, dropletImage =>
             {
                 dropletImage.DetermineAcceleration();
@@ -254,6 +276,8 @@ namespace ImageProcessing
 
             //Determine volume of each image
             labelValue = "Determining Volumes: ";
+            statusLabel.Text = labelValue;
+            Application.DoEvents();
             Parallel.ForEach(dropletImages, dropletImage =>
             {
                 dropletImage.DetermineVolume();
@@ -265,8 +289,9 @@ namespace ImageProcessing
             });
 
             //Create Output object to create Excel file
-            Output output = new Output("dummy.xlsx", dropletImages.Length);
+            Output output = new Output(folderPath, dropletImages.Length);
             statusLabel.Text = "Creating Excel Graphs";
+            Application.DoEvents();
 
             //Pass information into output
             for (int i = 0; i < dropletImages.Length; i++)
@@ -274,95 +299,14 @@ namespace ImageProcessing
                 output.insertRow(dropletImages[i], i);
             }
 
+            //End execution timer
+            int stopTime = System.Environment.TickCount;
+            Console.WriteLine("Time: " + (stopTime - startTime));
+
             //Create Excel file
             output.generateExcel();
             statusLabel.Text = "Processing Complete!";
-            
-            /*
-            //Number of total threads
-			int numThreads = 4;
-			
-			//Initialize threads
-			Thread[] threads = new Thread[numThreads];
-			
-			//Assign image ranges to each thread
-            int[] threadingStartIndices = new int[numThreads];
-            int[] threadingEndIndices = new int[numThreads];
-			int imagesPerThread = dropletImages.Length / numThreads;
-			for(int i = 0; i < numThreads - 1; i++){
-                threadingStartIndices[i] = i * imagesPerThread;
-                threadingEndIndices[i] = (i + 1) * imagesPerThread;
-			}
-			//The last thread will cover the last quarter of images along with any excess images
-            threadingStartIndices[numThreads - 1] = threadingEndIndices[numThreads - 2];
-			threadingEndIndices[numThreads - 1] = dropletImages.Length - 1;
-			
-
-			//Perform one operation on each image at a time
-			
-			//Determine centroids of each image using threads
-			for(int i = 0; i < numThreads; i++){
-				//Begin the thread's processing
-				threads[i] = new Thread(() => threadedCentroidDetermination(threadingStartIndices[i], threadingEndIndices[i]));
-				threads[i].Start();
-			}
-			
-			//Wait until threads are all finished before continuing
-			for(int i = 0; i < numThreads; i++){
-				threads[i].Join();
-			}
-			
-			//Determine velocities of each image
-			for(int i = 0; i < numThreads; i++){
-				//Begin the thread's processing
-                threads[i] = new Thread(() => threadedVelocityDetermination(threadingStartIndices[i], threadingEndIndices[i]));
-				threads[i].Start();
-			}
-			
-			//Wait until threads are all finished before continuing
-			for(int i = 0; i < numThreads; i++){
-				threads[i].Join();
-			}
-			
-			//Determine accelerations of each image
-			for(int i = 0; i < numThreads; i++){				
-				//Begin the thread's processing
-                threads[i] = new Thread(() => threadedAccelerationDetermination(threadingStartIndices[i], threadingEndIndices[i]));
-				threads[i].Start();
-			}
-			
-			//Wait until threads are all finished before continuing
-			for(int i = 0; i < numThreads; i++){
-				threads[i].Join();
-			}
-			
-			//Give all image data to the output
-			Output output = new Output("fileName.xcl", dropletImages.Length);
-			for(int i = 0; i < dropletImages.Length; i++){
-				output.insertRow(dropletImages[i], i);
-			}
-			//Generate excel file
-			output.generateExcel();
-            */
         }
-
-		private void threadedCentroidDetermination(int startIndex, int endIndex){
-			for(int i = startIndex; i < endIndex; i++){
-				dropletImages[i].DetermineCentroid();
-			}
-		}
-		
-		private void threadedVelocityDetermination(int startIndex, int endIndex){
-			for(int i = startIndex; i < endIndex; i++){
-				dropletImages[i].DetermineVelocity();
-			}
-		}
-		
-		private void threadedAccelerationDetermination(int startIndex, int endIndex){
-			for(int i = startIndex; i < endIndex; i++){
-				dropletImages[i].DetermineAcceleration();
-			}
-		}
 		
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -373,6 +317,23 @@ namespace ImageProcessing
         {
             frameRate = (int)frameRateNumericUpDown.Value;
             Console.WriteLine(frameRate);
+        }
+
+        private void browseButton_Click(object sender, EventArgs e)
+        {
+            saveFileDialog.FileName = "output.xlsx";
+            saveFileDialog.Filter = "Excel Files (*.xlsx)|*.xlsx";
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                folderPath = saveFileDialog.FileName;
+                saveDestinationTextBox.Text = folderPath;
+            }
+        }
+
+        private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+
         }
     }
 }
