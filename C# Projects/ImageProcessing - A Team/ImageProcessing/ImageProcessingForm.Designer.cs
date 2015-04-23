@@ -110,7 +110,6 @@
             this.baseNeedleHeightTextBox.Name = "baseNeedleHeightTextBox";
             this.baseNeedleHeightTextBox.Size = new System.Drawing.Size(55, 20);
             this.baseNeedleHeightTextBox.TabIndex = 5;
-            this.baseNeedleHeightTextBox.TextChanged += new System.EventHandler(this.baseNeedleHeightTextBox_TextChanged);
             // 
             // unitsLabel
             // 
@@ -229,7 +228,6 @@
             0,
             0,
             0});
-            this.blackWhiteNumericUpDown.ValueChanged += new System.EventHandler(this.blackWhiteNumericUpDown_ValueChanged);
             // 
             // frameRateHeaderLabel
             // 

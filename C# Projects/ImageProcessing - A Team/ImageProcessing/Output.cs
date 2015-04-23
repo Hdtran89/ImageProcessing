@@ -34,6 +34,7 @@ namespace ImageProcessing
             Process[] processlist = Process.GetProcesses();
             foreach (Process process in processlist)
             {
+                Console.WriteLine(process.ProcessName);
                 if (process.ProcessName == "Excel")
                 {
                     Console.WriteLine("find execl");
@@ -67,64 +68,65 @@ namespace ImageProcessing
                 Excel._Worksheet xlWSData = (Excel._Worksheet)xlWB.Worksheets.get_Item(1);
                 xlWSData.Name = "Processed Data";
 
-                //Create header for each workSheet within Excel Workbook
-                xlWSData.Cells[1, "A"] = "";
-                xlWSData.Cells[1, "B"] = "Time";
-                xlWSData.Cells[1, "C"] = "X Centroid";
-                xlWSData.Cells[1, "D"] = "Y Centroid";
-                xlWSData.Cells[1, "E"] = "X Velocity";
-                xlWSData.Cells[1, "F"] = "Y Velocity";
-                xlWSData.Cells[1, "G"] = "Net Velocity";
-                xlWSData.Cells[1, "H"] = "X Acceleration";
-                xlWSData.Cells[1, "I"] = "Y Acceleration";
-                xlWSData.Cells[1, "J"] = "Net Acceleration";
-                xlWSData.Cells[1, "K"] = "Volume";
+                //Get image units for column headers
+                string units = dropletImages[0].GetUnit();
 
-                //Bold the header in the data worksheet 
+                //Create header for each workSheet within Excel Workbook
+                xlWSData.Cells[1, "A"] = "Time";
+                xlWSData.Cells[1, "B"] = "X Centroid (" + units + ")";
+                xlWSData.Cells[1, "C"] = "Y Centroid (" + units + ")";
+                xlWSData.Cells[1, "D"] = "X Velocity (" + units + "/s)";
+                xlWSData.Cells[1, "E"] = "Y Velocity (" + units + "/s)";
+                xlWSData.Cells[1, "F"] = "Net Velocity (" + units + "/s)";
+                xlWSData.Cells[1, "G"] = "X Acceleration (" + units + "/s^2)";
+                xlWSData.Cells[1, "H"] = "Y Acceleration (" + units + "/s^2)";
+                xlWSData.Cells[1, "I"] = "Net Acceleration (" + units + "/s^2)";
+                xlWSData.Cells[1, "J"] = "Volume (" + units + "^3)";
+
+                //Bold the header in the data worksheet
                 Excel.Range formatRange;
                 formatRange = xlWSData.get_Range("A1");
                 formatRange.EntireRow.Font.Bold = true;
 
                 //Autofit each cell in data worksheet based on data
-                formatRange = xlWSData.get_Range("A:I");
+                formatRange = xlWSData.get_Range("A:J");
                 formatRange.Columns.AutoFit();
 
                 for (int i = 0; i < dropletImages.Length; i++)
                 {
                     //loop through each processed image here creating excel file...
-                    xlWSData.Cells[i + 2, "A"] = i + 1;
-                    xlWSData.Cells[i + 2, "B"] = dropletImages[i].GetTime();
-                    xlWSData.Cells[i + 2, "C"] = dropletImages[i].GetXCentroid();
-                    xlWSData.Cells[i + 2, "D"] = dropletImages[i].GetYCentroid();
-                    xlWSData.Cells[i + 2, "E"] = dropletImages[i].GetXVelocity();
-                    xlWSData.Cells[i + 2, "F"] = dropletImages[i].GetYVelocity();
-                    xlWSData.Cells[i + 2, "G"] = dropletImages[i].GetNetVelocity();
-                    xlWSData.Cells[i + 2, "H"] = dropletImages[i].GetXAcceleration();
-                    xlWSData.Cells[i + 2, "I"] = dropletImages[i].GetYAcceleration();
-                    xlWSData.Cells[i + 2, "J"] = dropletImages[i].GetNetAcceleration();
-                    xlWSData.Cells[i + 2, "K"] = dropletImages[i].GetVolume();
+                    xlWSData.Cells[i + 2, "A"] = dropletImages[i].GetTime();
+                    xlWSData.Cells[i + 2, "B"] = dropletImages[i].GetXCentroid();
+                    xlWSData.Cells[i + 2, "C"] = dropletImages[i].GetYCentroid();
+                    xlWSData.Cells[i + 2, "D"] = dropletImages[i].GetXVelocity();
+                    xlWSData.Cells[i + 2, "E"] = dropletImages[i].GetYVelocity();
+                    xlWSData.Cells[i + 2, "F"] = dropletImages[i].GetNetVelocity();
+                    xlWSData.Cells[i + 2, "G"] = dropletImages[i].GetXAcceleration();
+                    xlWSData.Cells[i + 2, "H"] = dropletImages[i].GetYAcceleration();
+                    xlWSData.Cells[i + 2, "I"] = dropletImages[i].GetNetAcceleration();
+                    xlWSData.Cells[i + 2, "J"] = dropletImages[i].GetVolume();
                 }
                 //Creation of Scatterplots 
 
                 //X Centroid
-                CreateScatterPlotGraph(2, "X Centroid", "C", xlWSData);
+                CreateScatterPlotGraph(2, "X Centroid", "B", xlWSData);
                 //Y Centroid
-                CreateScatterPlotGraph(3, "Y Centroid", "D", xlWSData);
+                CreateScatterPlotGraph(3, "Y Centroid", "C", xlWSData);
                 //X Velocity
-                CreateScatterPlotGraph(4, "X Velocity", "E", xlWSData);
+                CreateScatterPlotGraph(4, "X Velocity", "D", xlWSData);
                 //Y Velocity
-                CreateScatterPlotGraph(5, "Y Velocity", "F", xlWSData);
+                CreateScatterPlotGraph(5, "Y Velocity", "E", xlWSData);
                 //Net Velocity
-                CreateScatterPlotGraph(6, "Net Velocity", "G", xlWSData);
+                CreateScatterPlotGraph(6, "Net Velocity", "F", xlWSData);
                 //X Acceleration
-                CreateScatterPlotGraph(7, "X Acceleration", "H", xlWSData);
+                CreateScatterPlotGraph(7, "X Acceleration", "G", xlWSData);
                 //Y Acceleration
-                CreateScatterPlotGraph(8, "Y Acceleration", "I", xlWSData);
+                CreateScatterPlotGraph(8, "Y Acceleration", "H", xlWSData);
                 //Net Acceleration
-                CreateScatterPlotGraph(9, "Net Acceleration", "J", xlWSData);
+                CreateScatterPlotGraph(9, "Net Acceleration", "I", xlWSData);
                 //Volume
-                CreateScatterPlotGraph(10, "Volume", "K", xlWSData);
-
+                CreateScatterPlotGraph(10, "Volume", "J", xlWSData);
+                
                 xlWB.SaveAs(fileName);
 
                 if (Directory.Exists(fileName))
@@ -151,7 +153,7 @@ namespace ImageProcessing
             Excel.Chart xlChart = chartObj.Chart;
 
             //Scatterplot graph is created based on processed data worksheet, B:B is the time column 
-            Excel.Range chartRange = xlWSData.get_Range("B:B," + dataColumn + ":" + dataColumn);
+            Excel.Range chartRange = xlWSData.get_Range("A:A," + dataColumn + ":" + dataColumn);
             xlChart.SetSourceData(chartRange, Type.Missing);
             xlChart.ChartType = Excel.XlChartType.xlXYScatter;
 
