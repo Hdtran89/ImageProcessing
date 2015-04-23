@@ -28,6 +28,8 @@ namespace ImageProcessing
         public ImageProcessingForm()
         {
             InitializeComponent();
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.WorkerSupportsCancellation = true;
         }
 
         private void loadButton_Click(object sender, EventArgs e)
@@ -205,7 +207,8 @@ namespace ImageProcessing
             //Preprocess each image
             string labelValue = "Preprocessing Images: ";
             statusLabel.Text = labelValue;
-            Application.DoEvents();
+            backgroundWorker.RunWorkerAsync();
+            /*Application.DoEvents();
             int currentProgress = 0;
             runProgressBar.Maximum = dropletImages.Length;
             Parallel.ForEach(dropletImages, dropletImage =>
@@ -217,20 +220,21 @@ namespace ImageProcessing
                 currentProgress++;
                 //runProgressBar.Value = currentProgress;
             });
+            */
 
             //Determine centroids of each image
             labelValue = "Determining Centroids: ";
             statusLabel.Text = labelValue;
             Application.DoEvents();
             runProgressBar.Maximum = dropletImages.Length;
-            currentProgress = 0;
+            //currentProgress = 0;
             Parallel.ForEach(dropletImages, dropletImage =>
             {
                 dropletImage.DetermineCentroid();
 
                 //Update status label and progress bar
                 //statusLabel.Text = labelValue + (i + 1).ToString();
-                currentProgress++;
+                //currentProgress++;
                 //runProgressBar.Value = currentProgress;
             });
 
@@ -250,7 +254,7 @@ namespace ImageProcessing
 
                 //Update status label and progress bar
                 //statusLabel.Text = labelValue + (i + 1).ToString();
-                currentProgress++;
+                //currentProgress++;
                 //runProgressBar.Value = currentProgress;
             });
 
@@ -270,7 +274,7 @@ namespace ImageProcessing
 
                 //Update status label and progress bar
                 //statusLabel.Text = labelValue + (i + 1).ToString();
-                currentProgress++;
+                //currentProgress++;
                 //runProgressBar.Value = currentProgress;
             });
 
@@ -284,7 +288,7 @@ namespace ImageProcessing
 
                 //Update status label and progress bar
                 //statusLabel.Text = labelValue + (i + 1).ToString();
-                currentProgress++;
+                //currentProgress++;
                 //runProgressBar.Value = currentProgress;
             });
 
@@ -333,7 +337,26 @@ namespace ImageProcessing
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            int currentProgress = 0;
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.PreprocessImage();
 
+                //Update progress bar
+                currentProgress++;
+                backgroundWorker.ReportProgress(currentProgress);
+            });
+        }
+
+        private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            runProgressBar.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            statusLabel.Text = "Generating output...";
+            runProgressBar.Value = runProgressBar.Maximum;
         }
     }
 }

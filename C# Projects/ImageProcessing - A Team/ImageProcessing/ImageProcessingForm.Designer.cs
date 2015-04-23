@@ -36,6 +36,9 @@
             this.unitsLabel = new System.Windows.Forms.Label();
             this.frameRateNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.formControlsGroupBox = new System.Windows.Forms.GroupBox();
+            this.saveDestinationTextBox = new System.Windows.Forms.TextBox();
+            this.saveDestinationLabel = new System.Windows.Forms.Label();
+            this.browseButton = new System.Windows.Forms.Button();
             this.fpsLabel = new System.Windows.Forms.Label();
             this.blackWhiteCalibrationLabel = new System.Windows.Forms.Label();
             this.blackWhiteNumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -53,9 +56,6 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutUsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadImagesDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.browseButton = new System.Windows.Forms.Button();
-            this.saveDestinationLabel = new System.Windows.Forms.Label();
-            this.saveDestinationTextBox = new System.Windows.Forms.TextBox();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).BeginInit();
@@ -167,6 +167,32 @@
             this.formControlsGroupBox.TabIndex = 8;
             this.formControlsGroupBox.TabStop = false;
             this.formControlsGroupBox.Text = "Controls";
+            // 
+            // saveDestinationTextBox
+            // 
+            this.saveDestinationTextBox.Location = new System.Drawing.Point(116, 92);
+            this.saveDestinationTextBox.Name = "saveDestinationTextBox";
+            this.saveDestinationTextBox.Size = new System.Drawing.Size(369, 20);
+            this.saveDestinationTextBox.TabIndex = 20;
+            // 
+            // saveDestinationLabel
+            // 
+            this.saveDestinationLabel.AutoSize = true;
+            this.saveDestinationLabel.Location = new System.Drawing.Point(19, 95);
+            this.saveDestinationLabel.Name = "saveDestinationLabel";
+            this.saveDestinationLabel.Size = new System.Drawing.Size(91, 13);
+            this.saveDestinationLabel.TabIndex = 19;
+            this.saveDestinationLabel.Text = "Save Destination:";
+            // 
+            // browseButton
+            // 
+            this.browseButton.Location = new System.Drawing.Point(491, 91);
+            this.browseButton.Name = "browseButton";
+            this.browseButton.Size = new System.Drawing.Size(58, 23);
+            this.browseButton.TabIndex = 18;
+            this.browseButton.Text = "Browse";
+            this.browseButton.UseVisualStyleBackColor = true;
+            this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
             // 
             // fpsLabel
             // 
@@ -315,35 +341,11 @@
             this.aboutUsToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
             this.aboutUsToolStripMenuItem.Text = "About \'Image Processing\'";
             // 
-            // browseButton
-            // 
-            this.browseButton.Location = new System.Drawing.Point(491, 91);
-            this.browseButton.Name = "browseButton";
-            this.browseButton.Size = new System.Drawing.Size(58, 23);
-            this.browseButton.TabIndex = 18;
-            this.browseButton.Text = "Browse";
-            this.browseButton.UseVisualStyleBackColor = true;
-            this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
-            // 
-            // saveDestinationLabel
-            // 
-            this.saveDestinationLabel.AutoSize = true;
-            this.saveDestinationLabel.Location = new System.Drawing.Point(19, 95);
-            this.saveDestinationLabel.Name = "saveDestinationLabel";
-            this.saveDestinationLabel.Size = new System.Drawing.Size(91, 13);
-            this.saveDestinationLabel.TabIndex = 19;
-            this.saveDestinationLabel.Text = "Save Destination:";
-            // 
-            // saveDestinationTextBox
-            // 
-            this.saveDestinationTextBox.Location = new System.Drawing.Point(116, 92);
-            this.saveDestinationTextBox.Name = "saveDestinationTextBox";
-            this.saveDestinationTextBox.Size = new System.Drawing.Size(369, 20);
-            this.saveDestinationTextBox.TabIndex = 20;
-            // 
             // backgroundWorker
             // 
             this.backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_DoWork);
+            this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
+            this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
             // 
             // ImageProcessingForm
             // 
