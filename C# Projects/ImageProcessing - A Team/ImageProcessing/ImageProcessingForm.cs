@@ -23,13 +23,21 @@ namespace ImageProcessing
         int frameRate = 100;
         double baseToNeedleHeight = 2; //cm
         string folderPath;
-        LoadingWindow loadingWindow = new LoadingWindow();
+        AboutWindow loadingWindow = new AboutWindow();
+
+        //Run button locks - does not enable until both are true
+        bool loadedImages;
+        bool setSaveDestination;
 
         public ImageProcessingForm()
         {
             InitializeComponent();
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.WorkerSupportsCancellation = true;
+
+            //Initialize Run button locks
+            loadedImages = false;
+            setSaveDestination = false;
         }
 
         private void loadButton_Click(object sender, EventArgs e)
@@ -99,14 +107,14 @@ namespace ImageProcessing
                     //Set displayed image to the fourth in the list and adjust according to new calibration value
                     //displayedImage = dropletImages[0].GetBlackWhiteImage();
                     //displayedImage = dropletImages[0].GetConvergence();
-                    displayedImage = dropletImages[0].GetDropImage();
+                    displayedImage = dropletImages[0].GetBlackWhiteImage();
 
                     //Set picturebox to black and white image
                     currentImagePictureBox.Image = displayedImage;
 
-                    //Enable the 'Run' button and 'Calibrate' button
-                    runButton.Enabled = true;
-                    runToolStripMenuItem.Enabled = true;
+                    //Enable the 'Calibrate' button and specify that images have been loaded
+                    loadedImages = true;
+                    enableRunButton();
                     calibrateButton.Enabled = true;
 
                 }
@@ -142,7 +150,7 @@ namespace ImageProcessing
             //Set displayed image to the fourth in the list and adjust according to new calibration value
             //displayedImage = dropletImages[0].GetBlackWhiteImage();
             //displayedImage = dropletImages[0].GetConvergence();
-            displayedImage = dropletImages[0].GetDropImage();
+            displayedImage = dropletImages[0].GetBlackWhiteImage();
             
             //Set picturebox to black and white image
             //currentImagePictureBox.Image = null;
@@ -186,6 +194,9 @@ namespace ImageProcessing
 
         private void runButton_Click(object sender, EventArgs e)
         {
+            //Disable the Run button in the menu strip
+            runToolStripMenuItem.Enabled = false;
+            
             //Necessary operations before processing begins
             CreateConvergenceMatrix();
             ConvertPxToCm();
@@ -227,6 +238,10 @@ namespace ImageProcessing
             {
                 folderPath = saveFileDialog.FileName;
                 saveDestinationTextBox.Text = folderPath;
+
+                //Specify that the save destination has been set
+                setSaveDestination = true;
+                enableRunButton();
             }
         }
 
@@ -251,6 +266,7 @@ namespace ImageProcessing
             });
 
             //Determine centroid of each image
+            backgroundWorker.ReportProgress(-1);
             Parallel.ForEach(dropletImages, dropletImage =>
             {
                 dropletImage.DetermineCentroid();
@@ -311,6 +327,7 @@ namespace ImageProcessing
             }
 
             //Create Output object to create Excel file
+            backgroundWorker.ReportProgress(-2);
             Output output = new Output(folderPath, dropletImages.Length);
 
             //Pass information into output
@@ -363,10 +380,34 @@ namespace ImageProcessing
             statusLabel.Text = "Processing Complete!";
             runProgressBar.Value = runProgressBar.Maximum;
 
+            //Reset the save destination
+            folderPath = "";
+            saveDestinationTextBox.Text = folderPath;
+            setSaveDestination = false;
+            runButton.Enabled = false;
+
             //Change Stop button back into Run button
             runButton.Text = "Run";
             runButton.Click -= this.stopButton_Click;
             runButton.Click += this.runButton_Click;
+
+            
+        }
+
+        private void enableRunButton()
+        {
+            //If both conditions are met, enable the Run button
+            if (loadedImages && setSaveDestination)
+            {
+                runButton.Enabled = true;
+                runToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void aboutUsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutWindow aboutWindow = new AboutWindow();
+            aboutWindow.ShowDialog();
         }
     }
 }

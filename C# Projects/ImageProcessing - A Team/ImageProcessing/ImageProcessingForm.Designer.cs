@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageProcessingForm));
             this.currentImagePictureBox = new System.Windows.Forms.PictureBox();
             this.statusLabel = new System.Windows.Forms.Label();
             this.loadButton = new System.Windows.Forms.Button();
@@ -271,9 +272,9 @@
             // 
             // runProgressBar
             // 
-            this.runProgressBar.Location = new System.Drawing.Point(190, 434);
+            this.runProgressBar.Location = new System.Drawing.Point(254, 434);
             this.runProgressBar.Name = "runProgressBar";
-            this.runProgressBar.Size = new System.Drawing.Size(395, 23);
+            this.runProgressBar.Size = new System.Drawing.Size(331, 23);
             this.runProgressBar.TabIndex = 9;
             // 
             // menuStrip
@@ -323,8 +324,9 @@
             // 
             this.runToolStripMenuItem.Enabled = false;
             this.runToolStripMenuItem.Name = "runToolStripMenuItem";
-            this.runToolStripMenuItem.Size = new System.Drawing.Size(95, 22);
+            this.runToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.runToolStripMenuItem.Text = "Run";
+            this.runToolStripMenuItem.Click += new System.EventHandler(this.runButton_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -337,8 +339,9 @@
             // aboutUsToolStripMenuItem
             // 
             this.aboutUsToolStripMenuItem.Name = "aboutUsToolStripMenuItem";
-            this.aboutUsToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
-            this.aboutUsToolStripMenuItem.Text = "About \'Image Processing\'";
+            this.aboutUsToolStripMenuItem.Size = new System.Drawing.Size(230, 22);
+            this.aboutUsToolStripMenuItem.Text = "About Image Processing Tool";
+            this.aboutUsToolStripMenuItem.Click += new System.EventHandler(this.aboutUsToolStripMenuItem_Click);
             // 
             // backgroundWorker
             // 
@@ -356,9 +359,10 @@
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.currentImagePictureBox);
             this.Controls.Add(this.menuStrip);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "ImageProcessingForm";
-            this.Text = "Image Processing";
+            this.Text = "Image Processing Tool";
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).EndInit();
             this.formControlsGroupBox.ResumeLayout(false);

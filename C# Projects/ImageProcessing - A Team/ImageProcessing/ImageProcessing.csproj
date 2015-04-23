@@ -54,11 +54,11 @@
     <Compile Include="ImageProcessingForm.Designer.cs">
       <DependentUpon>ImageProcessingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LoadingWindow.cs">
+    <Compile Include="AboutWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LoadingWindow.Designer.cs">
-      <DependentUpon>LoadingWindow.cs</DependentUpon>
+    <Compile Include="AboutWindow.Designer.cs">
+      <DependentUpon>AboutWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Output.cs" />
     <Compile Include="Program.cs" />
@@ -66,8 +66,8 @@
     <EmbeddedResource Include="ImageProcessingForm.resx">
       <DependentUpon>ImageProcessingForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LoadingWindow.resx">
-      <DependentUpon>LoadingWindow.cs</DependentUpon>
+    <EmbeddedResource Include="AboutWindow.resx">
+      <DependentUpon>AboutWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -100,6 +100,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\please wait...png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\TheATeam.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
