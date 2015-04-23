@@ -186,122 +186,25 @@ namespace ImageProcessing
 
         private void runButton_Click(object sender, EventArgs e)
         {
-            //Begin execution time timer
-            int startTime = System.Environment.TickCount;
-
+            //Necessary operations before processing begins
             CreateConvergenceMatrix();
             ConvertPxToCm();
 
-            //statusLabel.Text = "Processing...";
             frameRate = (int)frameRateNumericUpDown.Value;
             DropletImage.ConvertFRtoSecPerImage(frameRate);
 
-            //Preprocess each image
-            string labelValue = "Preprocessing Images: ";
-            statusLabel.Text = labelValue;
+            //Begin Image Processing
             backgroundWorker.RunWorkerAsync();
-            /*Application.DoEvents();
-            int currentProgress = 0;
-            runProgressBar.Maximum = dropletImages.Length;
-            Parallel.ForEach(dropletImages, dropletImage =>
-            {
-                dropletImage.PreprocessImage();
 
-                //Update status label and progress bar
-                //statusLabel.Text = labelValue + (i + 1).ToString();
-                currentProgress++;
-                //runProgressBar.Value = currentProgress;
-            });
-            */
+            //Change Run button into Stop button
+            runButton.Text = "Stop";
+            runButton.Click -= this.runButton_Click;
+            runButton.Click += this.stopButton_Click;
+        }
 
-            //Determine centroids of each image
-            labelValue = "Determining Centroids: ";
-            statusLabel.Text = labelValue;
-            Application.DoEvents();
-            runProgressBar.Maximum = dropletImages.Length;
-            //currentProgress = 0;
-            Parallel.ForEach(dropletImages, dropletImage =>
-            {
-                dropletImage.DetermineCentroid();
-
-                //Update status label and progress bar
-                //statusLabel.Text = labelValue + (i + 1).ToString();
-                //currentProgress++;
-                //runProgressBar.Value = currentProgress;
-            });
-
-            //Pass the previous image's centroid to each image
-            for (int i = 1; i < dropletImages.Length; i++)
-            {
-                dropletImages[i].SetPrevCentroidValues(dropletImages[i - 1].GetXCentroid(), dropletImages[i - 1].GetYCentroid());
-            }
-
-            //Determine velocity of each image
-            labelValue = "Determining Velocities: ";
-            statusLabel.Text = labelValue;
-            Application.DoEvents();
-            Parallel.ForEach(dropletImages, dropletImage =>
-            {
-                dropletImage.DetermineVelocity();
-
-                //Update status label and progress bar
-                //statusLabel.Text = labelValue + (i + 1).ToString();
-                //currentProgress++;
-                //runProgressBar.Value = currentProgress;
-            });
-
-            //Pass the previous image's velocity to each image
-            for (int i = 1; i < dropletImages.Length; i++)
-            {
-                dropletImages[i].SetPrevVelocityValues(dropletImages[i - 1].GetXVelocity(), dropletImages[i - 1].GetYVelocity());
-            }
-
-            //Determine acceleration of each image
-            labelValue = "Determining Accelerations: ";
-            statusLabel.Text = labelValue;
-            Application.DoEvents();
-            Parallel.ForEach(dropletImages, dropletImage =>
-            {
-                dropletImage.DetermineAcceleration();
-
-                //Update status label and progress bar
-                //statusLabel.Text = labelValue + (i + 1).ToString();
-                //currentProgress++;
-                //runProgressBar.Value = currentProgress;
-            });
-
-            //Determine volume of each image
-            labelValue = "Determining Volumes: ";
-            statusLabel.Text = labelValue;
-            Application.DoEvents();
-            Parallel.ForEach(dropletImages, dropletImage =>
-            {
-                dropletImage.DetermineVolume();
-
-                //Update status label and progress bar
-                //statusLabel.Text = labelValue + (i + 1).ToString();
-                //currentProgress++;
-                //runProgressBar.Value = currentProgress;
-            });
-
-            //Create Output object to create Excel file
-            Output output = new Output(folderPath, dropletImages.Length);
-            statusLabel.Text = "Creating Excel Graphs";
-            Application.DoEvents();
-
-            //Pass information into output
-            for (int i = 0; i < dropletImages.Length; i++)
-            {
-                output.insertRow(dropletImages[i], i);
-            }
-
-            //End execution timer
-            int stopTime = System.Environment.TickCount;
-            Console.WriteLine("Time: " + (stopTime - startTime));
-
-            //Create Excel file
-            output.generateExcel();
-            statusLabel.Text = "Processing Complete!";
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+            backgroundWorker.CancelAsync();
         }
 		
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -337,18 +240,133 @@ namespace ImageProcessing
                 //Update progress bar
                 currentProgress++;
                 backgroundWorker.ReportProgress(currentProgress);
+
+                //Check if user cancelled processing
+                if (backgroundWorker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    backgroundWorker.ReportProgress(0);
+                    return;
+                }
             });
+
+            //Determine centroid of each image
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.DetermineCentroid();
+            });
+
+            //Pass the previous image's centroid to each image
+            for (int i = 1; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].SetPrevCentroidValues(dropletImages[i - 1].GetXCentroid(), dropletImages[i - 1].GetYCentroid());
+            }
+
+            //Check if user cancelled processing
+            if (backgroundWorker.CancellationPending)
+            {
+                e.Cancel = true;
+                backgroundWorker.ReportProgress(0);
+                return;
+            }
+
+            //Determine velocity of each image
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.DetermineVelocity();
+            });
+
+            //Pass the previous image's velocity to each image
+            for (int i = 1; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].SetPrevVelocityValues(dropletImages[i - 1].GetXVelocity(), dropletImages[i - 1].GetYVelocity());
+            }
+
+            //Check if user cancelled processing
+            if (backgroundWorker.CancellationPending)
+            {
+                e.Cancel = true;
+                backgroundWorker.ReportProgress(0);
+                return;
+            }
+
+            //Determine acceleration of each image
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.DetermineAcceleration();
+            });
+
+            //Determine volume of each image
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.DetermineVolume();
+            });
+
+            //Check if user cancelled processing
+            if (backgroundWorker.CancellationPending)
+            {
+                e.Cancel = true;
+                backgroundWorker.ReportProgress(0);
+                return;
+            }
+
+            //Create Output object to create Excel file
+            Output output = new Output(folderPath, dropletImages.Length);
+
+            //Pass information into output
+            for (int i = 0; i < dropletImages.Length; i++)
+            {
+                output.insertRow(dropletImages[i], i);
+            }
+
+            //Check if user cancelled processing
+            if (backgroundWorker.CancellationPending)
+            {
+                e.Cancel = true;
+                backgroundWorker.ReportProgress(0);
+                return;
+            }
+
+            //Create Excel file
+            output.generateExcel();
         }
 
         private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            runProgressBar.Value = e.ProgressPercentage;
+            if (e.ProgressPercentage > 0)
+            {
+                statusLabel.Text = "Processing Images: " + e.ProgressPercentage.ToString() + "/" + dropletImages.Length.ToString();
+                runProgressBar.Value = e.ProgressPercentage;
+            }
+            if (e.ProgressPercentage == -1)
+            {
+                statusLabel.Text = "Calculating Drop Measurements";
+            }
+            if (e.ProgressPercentage == -2)
+            {
+                statusLabel.Text = "Generating Spreadsheet/Data Plots";
+            }
+            if (e.ProgressPercentage == 0)
+            {
+                statusLabel.Text = "Stopped Processing";
+                runProgressBar.Value = 0;
+
+                //Change Stop button back into Run button
+                runButton.Text = "Run";
+                runButton.Click -= this.stopButton_Click;
+                runButton.Click += this.runButton_Click;
+            }
         }
 
         private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            statusLabel.Text = "Generating output...";
+            statusLabel.Text = "Processing Complete!";
             runProgressBar.Value = runProgressBar.Maximum;
+
+            //Change Stop button back into Run button
+            runButton.Text = "Run";
+            runButton.Click -= this.stopButton_Click;
+            runButton.Click += this.runButton_Click;
         }
     }
 }

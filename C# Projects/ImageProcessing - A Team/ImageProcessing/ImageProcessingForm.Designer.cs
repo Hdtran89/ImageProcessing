@@ -169,6 +169,7 @@
             // 
             // saveDestinationTextBox
             // 
+            this.saveDestinationTextBox.Enabled = false;
             this.saveDestinationTextBox.Location = new System.Drawing.Point(116, 92);
             this.saveDestinationTextBox.Name = "saveDestinationTextBox";
             this.saveDestinationTextBox.Size = new System.Drawing.Size(369, 20);
