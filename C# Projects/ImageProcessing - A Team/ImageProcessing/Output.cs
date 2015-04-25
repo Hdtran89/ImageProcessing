@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.IO;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace ImageProcessing
 {
@@ -13,9 +14,8 @@ namespace ImageProcessing
     {
         string fileName;
         DropletImage[] dropletImages;
-        const int numOfScatterPlotGraphs = 9;
+        const int numOfScatterPlotGraphs = 10;
         Excel.Workbook xlWB;
-        Excel._Worksheet xlWSData;
 
         public Output(string inputFileName, int numImages)
         {
@@ -35,7 +35,7 @@ namespace ImageProcessing
             foreach (Process process in processlist)
             {
                 Console.WriteLine(process.ProcessName);
-                if (process.ProcessName == "Excel")
+                if (process.ProcessName == "EXCEL")
                 {
                     Console.WriteLine("find execl");
                     process.Kill();
@@ -68,20 +68,12 @@ namespace ImageProcessing
                 Excel._Worksheet xlWSData = (Excel._Worksheet)xlWB.Worksheets.get_Item(1);
                 xlWSData.Name = "Processed Data";
 
-                //Get image units for column headers
-                string units = dropletImages[0].GetUnit();
-
-                //Create header for each workSheet within Excel Workbook
-                xlWSData.Cells[1, "A"] = "Time";
-                xlWSData.Cells[1, "B"] = "X Centroid (" + units + ")";
-                xlWSData.Cells[1, "C"] = "Y Centroid (" + units + ")";
-                xlWSData.Cells[1, "D"] = "X Velocity (" + units + "/s)";
-                xlWSData.Cells[1, "E"] = "Y Velocity (" + units + "/s)";
-                xlWSData.Cells[1, "F"] = "Net Velocity (" + units + "/s)";
-                xlWSData.Cells[1, "G"] = "X Acceleration (" + units + "/s^2)";
-                xlWSData.Cells[1, "H"] = "Y Acceleration (" + units + "/s^2)";
-                xlWSData.Cells[1, "I"] = "Net Acceleration (" + units + "/s^2)";
-                xlWSData.Cells[1, "J"] = "Volume (" + units + "^3)";
+                Excel._Worksheet tempData = (Excel._Worksheet)xlWB.Worksheets.get_Item(2);
+                tempData.Name = "Test Data";
+                tempData.Visible = Excel.XlSheetVisibility.xlSheetHidden;
+                //create headers for spreadsheets
+                ExcelHeader(xlWSData, true);
+                ExcelHeader(tempData, false);
 
                 //Bold the header in the data worksheet
                 Excel.Range formatRange;
@@ -105,44 +97,57 @@ namespace ImageProcessing
                     xlWSData.Cells[i + 2, "H"] = dropletImages[i].GetYAcceleration();
                     xlWSData.Cells[i + 2, "I"] = dropletImages[i].GetNetAcceleration();
                     xlWSData.Cells[i + 2, "J"] = dropletImages[i].GetVolume();
+
+                    //excel file created to generate scatter plot graphs
+                    tempData.Cells[i + 2, "A"] = dropletImages[i].GetTime();
+                    tempData.Cells[i + 2, "B"] = dropletImages[i].GetXCentroid();
+                    tempData.Cells[i + 2, "C"] = dropletImages[i].GetYCentroid();
+                    tempData.Cells[i + 2, "D"] = dropletImages[i].GetXVelocity();
+                    tempData.Cells[i + 2, "E"] = dropletImages[i].GetYVelocity();
+                    tempData.Cells[i + 2, "F"] = dropletImages[i].GetNetVelocity();
+                    tempData.Cells[i + 2, "G"] = dropletImages[i].GetXAcceleration();
+                    tempData.Cells[i + 2, "H"] = dropletImages[i].GetYAcceleration();
+                    tempData.Cells[i + 2, "I"] = dropletImages[i].GetNetAcceleration();
+                    tempData.Cells[i + 2, "J"] = dropletImages[i].GetVolume();
                 }
                 //Creation of Scatterplots 
 
                 //X Centroid
-                CreateScatterPlotGraph(2, "X Centroid", "B", xlWSData);
+                CreateScatterPlotGraph(3, "X Centroid", "B", tempData);
                 //Y Centroid
-                CreateScatterPlotGraph(3, "Y Centroid", "C", xlWSData);
+                CreateScatterPlotGraph(4, "Y Centroid", "C", tempData);
                 //X Velocity
-                CreateScatterPlotGraph(4, "X Velocity", "D", xlWSData);
+                CreateScatterPlotGraph(5, "X Velocity", "D", tempData);
                 //Y Velocity
-                CreateScatterPlotGraph(5, "Y Velocity", "E", xlWSData);
+                CreateScatterPlotGraph(6, "Y Velocity", "E", tempData);
                 //Net Velocity
-                CreateScatterPlotGraph(6, "Net Velocity", "F", xlWSData);
+                CreateScatterPlotGraph(7, "Net Velocity", "F", tempData);
                 //X Acceleration
-                CreateScatterPlotGraph(7, "X Acceleration", "G", xlWSData);
+                CreateScatterPlotGraph(8, "X Acceleration", "G", tempData);
                 //Y Acceleration
-                CreateScatterPlotGraph(8, "Y Acceleration", "H", xlWSData);
+                CreateScatterPlotGraph(9, "Y Acceleration", "H", tempData);
                 //Net Acceleration
-                CreateScatterPlotGraph(9, "Net Acceleration", "I", xlWSData);
+                CreateScatterPlotGraph(10, "Net Acceleration", "I", tempData);
                 //Volume
-                CreateScatterPlotGraph(10, "Volume", "J", xlWSData);
+                CreateScatterPlotGraph(11, "Volume", "J", tempData);
                 
                 xlWB.SaveAs(fileName);
 
                 if (Directory.Exists(fileName))
                 {
                     xlApp.Workbooks.Open(fileName);
-                    xlWSData.Activate();
                 }
 
+                releaseObject(xlApp);
             }
         }
 
         //@param int        graphNum            gets worksheet number
         //@param string     scatterPlotNmae     gets name of scatterplot
         //@param string     dataColumn          gets the column for each set of data (velocity, acceleraton...)
-        private void CreateScatterPlotGraph(int graphNum, string scatterPlotName, string dataColumn, Excel._Worksheet xlWSData)
+        private void CreateScatterPlotGraph(int graphNum, string scatterPlotName, string dataColumn, Excel._Worksheet temp)
         {
+            temp.Activate();
             Excel._Worksheet XlWSScattPlot = (Excel._Worksheet)xlWB.Worksheets.get_Item(graphNum);
             XlWSScattPlot.Name = scatterPlotName;
 
@@ -151,9 +156,10 @@ namespace ImageProcessing
             //Add method (left, top, width, height) probably need to mess around with the width and height of the graph
             Excel.ChartObject chartObj = chartObjs.Add(0, 0, 500, 500);
             Excel.Chart xlChart = chartObj.Chart;
-
+            
             //Scatterplot graph is created based on processed data worksheet, B:B is the time column 
-            Excel.Range chartRange = xlWSData.get_Range("A:A," + dataColumn + ":" + dataColumn);
+            Excel.Range chartRange = temp.get_Range("A:A," + dataColumn + ":" + dataColumn);
+            
             xlChart.SetSourceData(chartRange, Type.Missing);
             xlChart.ChartType = Excel.XlChartType.xlXYScatter;
 
@@ -172,8 +178,25 @@ namespace ImageProcessing
             xlChart.ChartTitle.Text = scatterPlotName + "/Time";
         }
 
+        private void ExcelHeader(Excel._Worksheet header, bool showTime)
+        {
+            //Get image units for column headers
+            string units = dropletImages[0].GetUnit();
+            if (showTime)
+            {
+                header.Cells[1, "A"] = "Time";
+            }
+            header.Cells[1, "B"] = "X Centroid (" + units + ")";
+            header.Cells[1, "C"] = "Y Centroid (" + units + ")";
+            header.Cells[1, "D"] = "X Velocity (" + units + "/s)";
+            header.Cells[1, "E"] = "Y Velocity (" + units + "/s)";
+            header.Cells[1, "F"] = "Net Velocity (" + units + "/s)";
+            header.Cells[1, "G"] = "X Acceleration (" + units + "/s^2)";
+            header.Cells[1, "H"] = "Y Acceleration (" + units + "/s^2)";
+            header.Cells[1, "I"] = "Net Acceleration (" + units + "/s^2)";
+            header.Cells[1, "J"] = "Volume (" + units + "^3)";
+        }
 
-        /*
         //May need to release COM object
         private void releaseObject(object obj)
         {
@@ -192,6 +215,5 @@ namespace ImageProcessing
                 GC.Collect();
             }
         }
-         * */
     }
 }
