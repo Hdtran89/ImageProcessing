@@ -136,6 +136,8 @@ namespace ImageProcessing
                 if (Directory.Exists(fileName))
                 {
                     xlApp.Workbooks.Open(fileName);
+                    xlWSData.Activate();
+
                 }
 
                 releaseObject(xlApp);
@@ -147,7 +149,6 @@ namespace ImageProcessing
         //@param string     dataColumn          gets the column for each set of data (velocity, acceleraton...)
         private void CreateScatterPlotGraph(int graphNum, string scatterPlotName, string dataColumn, Excel._Worksheet temp)
         {
-            temp.Activate();
             Excel._Worksheet XlWSScattPlot = (Excel._Worksheet)xlWB.Worksheets.get_Item(graphNum);
             XlWSScattPlot.Name = scatterPlotName;
 
