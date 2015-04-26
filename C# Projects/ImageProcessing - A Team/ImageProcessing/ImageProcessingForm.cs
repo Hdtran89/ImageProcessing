@@ -21,7 +21,7 @@ namespace ImageProcessing
 
         Bitmap displayedImage;
         int frameRate = 100;
-        double baseToNeedleHeight = 2; //cm
+        double baseToNeedleHeight = -1; //cm
         string folderPath;
         AboutWindow loadingWindow = new AboutWindow();
 
@@ -89,25 +89,9 @@ namespace ImageProcessing
                     //Display the number of files loaded in the status label
                     statusLabel.Text = "Loaded " + images.Length + " images.";
 
-                    dropletImages[0].PreprocessImage();
-                    //dropletImages[1].PreprocessImage();
-                    dropletImages[0].DetermineCentroid();
-                    //dropletImages[1].SetPrevCentroidValues(dropletImages[0].GetXCentroid(), dropletImages[0].GetYCentroid());
-                    dropletImages[0].DetermineVelocity();
-                    dropletImages[0].DetermineAcceleration();
-                    dropletImages[0].DetermineVolume();
-                    /*
-                    dropletImages[1].SetPrevVelocityValues(dropletImages[0].GetXVelocity(), dropletImages[0].GetYVelocity());
-                    dropletImages[1].DetermineCentroid();
-                    dropletImages[1].DetermineVelocity();
-                    dropletImages[1].DetermineAcceleration();
-                    dropletImages[1].DetermineVolume();
-                     */
-
-                    //Set displayed image to the fourth in the list and adjust according to new calibration value
-                    //displayedImage = dropletImages[0].GetBlackWhiteImage();
-                    //displayedImage = dropletImages[0].GetConvergence();
-                    displayedImage = dropletImages[0].GetBlackWhiteImage();
+                    dropletImages[4].PreprocessImage();
+                    dropletImages[4].DetermineCentroid();
+                    displayedImage = dropletImages[4].GetBlackWhiteImage();
 
                     //Set picturebox to black and white image
                     currentImagePictureBox.Image = displayedImage;
@@ -141,16 +125,11 @@ namespace ImageProcessing
                and baseNeedleHeight in cm to calculate cm per pixel */
             ConvertPxToCm();
 
-            dropletImages[0].PreprocessImage();
-            dropletImages[0].DetermineCentroid();
-            dropletImages[0].DetermineVelocity();
-            dropletImages[0].DetermineAcceleration();
-            dropletImages[0].DetermineVolume();
+            dropletImages[4].PreprocessImage();
+            dropletImages[4].DetermineCentroid();
 
             //Set displayed image to the fourth in the list and adjust according to new calibration value
-            //displayedImage = dropletImages[0].GetBlackWhiteImage();
-            //displayedImage = dropletImages[0].GetConvergence();
-            displayedImage = dropletImages[0].GetBlackWhiteImage();
+            displayedImage = dropletImages[4].GetBlackWhiteImage();
             
             //Set picturebox to black and white image
             //currentImagePictureBox.Image = null;

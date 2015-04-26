@@ -117,6 +117,72 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>561, 17</value>
+  </metadata>
+  <data name="loadButton.ToolTip" xml:space="preserve">
+    <value>Click here to select the folder of images you wish to process.
+
+The fifth image in the folder will be displayed and the Tool's
+determination of its base, needle, and droplet will be highlighted
+in red. </value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="baseNeedleHelp.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAB9ElEQVQ4T1WT
+        XW5SURSFb9+cgsNyBkyhQ2AEhxbagtaKNv6V2KQ81FhDomiTFnmwaWoNFnzQB8AGLZbQhpbl+riAQLJy
+        zz5nr/2z9iYKIcxioVqt3m02m/fOGpfJz8fXqXrjbxKbe95n/aeHUql05/TrReLNJ1VCQd2wqWHIS2Hd
+        38fqvj9QpfbtVwK/OTIXrVZnMRTVN0nhiQFxw8gaS0aQNgrqt1vni5MAkBfIGHZMfGqnF9LynnR5pdFv
+        cCsVP/o+I604QH5L/VqtlYAX0csepZLRxPBauh5IPZMrdelPT7odSrltBzWZAPsHNxV4EWKELff4yMRn
+        UvZdnPHtie2CdHgW2zsfpCUT14z0urrwItS0IMNRf2R/abwynGn3KCb+aNt+KKVMXDXc/7DR6CSjo+Or
+        FA8hZ5CdAFRQkm5c7s9z24iXjsnZmKyT09+pqP79Ijkax4ovHxgEsnP5i2SuMkXbvFlxeh6T48yjnvPu
+        mXHgtGowHtp4bqwZy3FWxLpvZCY9o1rZC0ApIxDEzttlqdnx2W1ATBuIReb9w0GsNvNic/JeACJTGqru
+        era9vslugXuIZN2cnTObwsawOSwAjkTHOTM+5wxUhthqtec2bBqAiCwAc0QUKuCLTam8T4hz5DGm/yrU
+        ZBx8sbnn/b9viP4BdciaC7IHx64AAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="framerateHelp.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAB9ElEQVQ4T1WT
+        XW5SURSFb9+cgsNyBkyhQ2AEhxbagtaKNv6V2KQ81FhDomiTFnmwaWoNFnzQB8AGLZbQhpbl+riAQLJy
+        zz5nr/2z9iYKIcxioVqt3m02m/fOGpfJz8fXqXrjbxKbe95n/aeHUql05/TrReLNJ1VCQd2wqWHIS2Hd
+        38fqvj9QpfbtVwK/OTIXrVZnMRTVN0nhiQFxw8gaS0aQNgrqt1vni5MAkBfIGHZMfGqnF9LynnR5pdFv
+        cCsVP/o+I604QH5L/VqtlYAX0csepZLRxPBauh5IPZMrdelPT7odSrltBzWZAPsHNxV4EWKELff4yMRn
+        UvZdnPHtie2CdHgW2zsfpCUT14z0urrwItS0IMNRf2R/abwynGn3KCb+aNt+KKVMXDXc/7DR6CSjo+Or
+        FA8hZ5CdAFRQkm5c7s9z24iXjsnZmKyT09+pqP79Ijkax4ovHxgEsnP5i2SuMkXbvFlxeh6T48yjnvPu
+        mXHgtGowHtp4bqwZy3FWxLpvZCY9o1rZC0ApIxDEzttlqdnx2W1ATBuIReb9w0GsNvNic/JeACJTGqru
+        era9vslugXuIZN2cnTObwsawOSwAjkTHOTM+5wxUhthqtec2bBqAiCwAc0QUKuCLTam8T4hz5DGm/yrU
+        ZBx8sbnn/b9viP4BdciaC7IHx64AAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="calibrationHelp.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAB9ElEQVQ4T1WT
+        XW5SURSFb9+cgsNyBkyhQ2AEhxbagtaKNv6V2KQ81FhDomiTFnmwaWoNFnzQB8AGLZbQhpbl+riAQLJy
+        zz5nr/2z9iYKIcxioVqt3m02m/fOGpfJz8fXqXrjbxKbe95n/aeHUql05/TrReLNJ1VCQd2wqWHIS2Hd
+        38fqvj9QpfbtVwK/OTIXrVZnMRTVN0nhiQFxw8gaS0aQNgrqt1vni5MAkBfIGHZMfGqnF9LynnR5pdFv
+        cCsVP/o+I604QH5L/VqtlYAX0csepZLRxPBauh5IPZMrdelPT7odSrltBzWZAPsHNxV4EWKELff4yMRn
+        UvZdnPHtie2CdHgW2zsfpCUT14z0urrwItS0IMNRf2R/abwynGn3KCb+aNt+KKVMXDXc/7DR6CSjo+Or
+        FA8hZ5CdAFRQkm5c7s9z24iXjsnZmKyT09+pqP79Ijkax4ovHxgEsnP5i2SuMkXbvFlxeh6T48yjnvPu
+        mXHgtGowHtp4bqwZy3FWxLpvZCY9o1rZC0ApIxDEzttlqdnx2W1ATBuIReb9w0GsNvNic/JeACJTGqru
+        era9vslugXuIZN2cnTObwsawOSwAjkTHOTM+5wxUhthqtec2bBqAiCwAc0QUKuCLTam8T4hz5DGm/yrU
+        ZBx8sbnn/b9viP4BdciaC7IHx64AAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="calibrationHelp.ToolTip" xml:space="preserve">
+    <value>Only adjust the Black/White Calibration if the Tool's determination
+of the base, needle, and droplet location on the displayed image is inadequate.
+
+Increase the value to identify more pixels as relevant.
+Decrease the value to identify less pixels as relevant. 
+
+Then Click "Calibrate" and wait for the image to be reprocessed. 
+</value>
+  </data>
   <metadata name="menuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
@@ -129,7 +195,6 @@
   <metadata name="backgroundWorker.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>404, 17</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAYAEBAAAAAAIABoBAAAZgAAACAgAAAAACAAqBAAAM4EAAAwMAAAAAAgAKglAAB2FQAAQEAAAAAA

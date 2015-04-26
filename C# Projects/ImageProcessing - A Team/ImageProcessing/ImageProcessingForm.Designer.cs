@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageProcessingForm));
             this.currentImagePictureBox = new System.Windows.Forms.PictureBox();
             this.statusLabel = new System.Windows.Forms.Label();
@@ -59,11 +60,18 @@
             this.loadImagesDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.calibrationHelp = new System.Windows.Forms.PictureBox();
+            this.framerateHelp = new System.Windows.Forms.PictureBox();
+            this.baseNeedleHelp = new System.Windows.Forms.PictureBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).BeginInit();
             this.formControlsGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.blackWhiteNumericUpDown)).BeginInit();
             this.menuStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.calibrationHelp)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.framerateHelp)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.baseNeedleHelp)).BeginInit();
             this.SuspendLayout();
             // 
             // currentImagePictureBox
@@ -91,13 +99,14 @@
             this.loadButton.Size = new System.Drawing.Size(75, 36);
             this.loadButton.TabIndex = 2;
             this.loadButton.Text = "Load";
+            this.toolTip1.SetToolTip(this.loadButton, resources.GetString("loadButton.ToolTip"));
             this.loadButton.UseVisualStyleBackColor = true;
             this.loadButton.Click += new System.EventHandler(this.loadButton_Click);
             // 
             // runButton
             // 
             this.runButton.Enabled = false;
-            this.runButton.Location = new System.Drawing.Point(482, 40);
+            this.runButton.Location = new System.Drawing.Point(491, 40);
             this.runButton.Name = "runButton";
             this.runButton.Size = new System.Drawing.Size(77, 36);
             this.runButton.TabIndex = 3;
@@ -107,7 +116,7 @@
             // 
             // baseNeedleHeightTextBox
             // 
-            this.baseNeedleHeightTextBox.Location = new System.Drawing.Point(386, 53);
+            this.baseNeedleHeightTextBox.Location = new System.Drawing.Point(393, 53);
             this.baseNeedleHeightTextBox.Name = "baseNeedleHeightTextBox";
             this.baseNeedleHeightTextBox.Size = new System.Drawing.Size(55, 20);
             this.baseNeedleHeightTextBox.TabIndex = 5;
@@ -115,7 +124,7 @@
             // unitsLabel
             // 
             this.unitsLabel.AutoSize = true;
-            this.unitsLabel.Location = new System.Drawing.Point(445, 60);
+            this.unitsLabel.Location = new System.Drawing.Point(452, 60);
             this.unitsLabel.Name = "unitsLabel";
             this.unitsLabel.Size = new System.Drawing.Size(21, 13);
             this.unitsLabel.TabIndex = 6;
@@ -123,7 +132,7 @@
             // 
             // frameRateNumericUpDown
             // 
-            this.frameRateNumericUpDown.Location = new System.Drawing.Point(251, 53);
+            this.frameRateNumericUpDown.Location = new System.Drawing.Point(254, 53);
             this.frameRateNumericUpDown.Maximum = new decimal(new int[] {
             1410065407,
             2,
@@ -146,6 +155,9 @@
             // 
             // formControlsGroupBox
             // 
+            this.formControlsGroupBox.Controls.Add(this.baseNeedleHelp);
+            this.formControlsGroupBox.Controls.Add(this.framerateHelp);
+            this.formControlsGroupBox.Controls.Add(this.calibrationHelp);
             this.formControlsGroupBox.Controls.Add(this.saveDestinationTextBox);
             this.formControlsGroupBox.Controls.Add(this.saveDestinationLabel);
             this.formControlsGroupBox.Controls.Add(this.browseButton);
@@ -192,13 +204,15 @@
             this.browseButton.Size = new System.Drawing.Size(58, 23);
             this.browseButton.TabIndex = 18;
             this.browseButton.Text = "Browse";
+            this.toolTip1.SetToolTip(this.browseButton, "Before you can click \"Run,\" you must select a location to save and \r\nname the out" +
+        "put Excel file that will be created during processing.");
             this.browseButton.UseVisualStyleBackColor = true;
             this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
             // 
             // fpsLabel
             // 
             this.fpsLabel.AutoSize = true;
-            this.fpsLabel.Location = new System.Drawing.Point(335, 57);
+            this.fpsLabel.Location = new System.Drawing.Point(338, 57);
             this.fpsLabel.Name = "fpsLabel";
             this.fpsLabel.Size = new System.Drawing.Size(27, 13);
             this.fpsLabel.TabIndex = 17;
@@ -208,7 +222,7 @@
             // 
             this.blackWhiteCalibrationLabel.AutoSize = true;
             this.blackWhiteCalibrationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.blackWhiteCalibrationLabel.Location = new System.Drawing.Point(113, 31);
+            this.blackWhiteCalibrationLabel.Location = new System.Drawing.Point(109, 31);
             this.blackWhiteCalibrationLabel.Name = "blackWhiteCalibrationLabel";
             this.blackWhiteCalibrationLabel.Size = new System.Drawing.Size(119, 13);
             this.blackWhiteCalibrationLabel.TabIndex = 16;
@@ -216,7 +230,7 @@
             // 
             // blackWhiteNumericUpDown
             // 
-            this.blackWhiteNumericUpDown.Location = new System.Drawing.Point(114, 53);
+            this.blackWhiteNumericUpDown.Location = new System.Drawing.Point(117, 53);
             this.blackWhiteNumericUpDown.Maximum = new decimal(new int[] {
             255,
             0,
@@ -235,7 +249,7 @@
             // 
             this.frameRateHeaderLabel.AutoSize = true;
             this.frameRateHeaderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.frameRateHeaderLabel.Location = new System.Drawing.Point(268, 31);
+            this.frameRateHeaderLabel.Location = new System.Drawing.Point(269, 31);
             this.frameRateHeaderLabel.Name = "frameRateHeaderLabel";
             this.frameRateHeaderLabel.Size = new System.Drawing.Size(62, 13);
             this.frameRateHeaderLabel.TabIndex = 15;
@@ -244,7 +258,7 @@
             // calibrateButton
             // 
             this.calibrateButton.Enabled = false;
-            this.calibrateButton.Location = new System.Drawing.Point(167, 52);
+            this.calibrateButton.Location = new System.Drawing.Point(170, 52);
             this.calibrateButton.Name = "calibrateButton";
             this.calibrateButton.Size = new System.Drawing.Size(65, 23);
             this.calibrateButton.TabIndex = 14;
@@ -264,7 +278,7 @@
             // 
             this.baseNeedleHeightLabel.AutoSize = true;
             this.baseNeedleHeightLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.baseNeedleHeightLabel.Location = new System.Drawing.Point(369, 31);
+            this.baseNeedleHeightLabel.Location = new System.Drawing.Point(367, 31);
             this.baseNeedleHeightLabel.Name = "baseNeedleHeightLabel";
             this.baseNeedleHeightLabel.Size = new System.Drawing.Size(104, 13);
             this.baseNeedleHeightLabel.TabIndex = 12;
@@ -274,7 +288,7 @@
             // 
             this.runProgressBar.Location = new System.Drawing.Point(254, 434);
             this.runProgressBar.Name = "runProgressBar";
-            this.runProgressBar.Size = new System.Drawing.Size(331, 23);
+            this.runProgressBar.Size = new System.Drawing.Size(325, 23);
             this.runProgressBar.TabIndex = 9;
             // 
             // menuStrip
@@ -324,7 +338,7 @@
             // 
             this.runToolStripMenuItem.Enabled = false;
             this.runToolStripMenuItem.Name = "runToolStripMenuItem";
-            this.runToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.runToolStripMenuItem.Size = new System.Drawing.Size(95, 22);
             this.runToolStripMenuItem.Text = "Run";
             this.runToolStripMenuItem.Click += new System.EventHandler(this.runButton_Click);
             // 
@@ -349,6 +363,46 @@
             this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
             // 
+            // calibrationHelp
+            // 
+            this.calibrationHelp.Image = ((System.Drawing.Image)(resources.GetObject("calibrationHelp.Image")));
+            this.calibrationHelp.Location = new System.Drawing.Point(226, 31);
+            this.calibrationHelp.Name = "calibrationHelp";
+            this.calibrationHelp.Size = new System.Drawing.Size(15, 15);
+            this.calibrationHelp.TabIndex = 11;
+            this.calibrationHelp.TabStop = false;
+            this.toolTip1.SetToolTip(this.calibrationHelp, resources.GetString("calibrationHelp.ToolTip"));
+            // 
+            // framerateHelp
+            // 
+            this.framerateHelp.Image = ((System.Drawing.Image)(resources.GetObject("framerateHelp.Image")));
+            this.framerateHelp.Location = new System.Drawing.Point(331, 30);
+            this.framerateHelp.Name = "framerateHelp";
+            this.framerateHelp.Size = new System.Drawing.Size(15, 15);
+            this.framerateHelp.TabIndex = 21;
+            this.framerateHelp.TabStop = false;
+            this.toolTip1.SetToolTip(this.framerateHelp, "Enter the \"frames per second\" setting of the \r\ncamera used to obtain the loaded i" +
+        "mages.");
+            // 
+            // baseNeedleHelp
+            // 
+            this.baseNeedleHelp.Image = ((System.Drawing.Image)(resources.GetObject("baseNeedleHelp.Image")));
+            this.baseNeedleHelp.Location = new System.Drawing.Point(469, 31);
+            this.baseNeedleHelp.Name = "baseNeedleHelp";
+            this.baseNeedleHelp.Size = new System.Drawing.Size(15, 15);
+            this.baseNeedleHelp.TabIndex = 22;
+            this.baseNeedleHelp.TabStop = false;
+            this.toolTip1.SetToolTip(this.baseNeedleHelp, "Enter the vertical distance between the tip of the \r\nneedle and the base directly" +
+        " below it in centimeters .");
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.AutoPopDelay = 8000;
+            this.toolTip1.InitialDelay = 600;
+            this.toolTip1.IsBalloon = true;
+            this.toolTip1.ReshowDelay = 500;
+            this.toolTip1.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            // 
             // ImageProcessingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -370,6 +424,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.blackWhiteNumericUpDown)).EndInit();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.calibrationHelp)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.framerateHelp)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.baseNeedleHelp)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -407,6 +464,10 @@
         private System.Windows.Forms.Button browseButton;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.ComponentModel.BackgroundWorker backgroundWorker;
+        private System.Windows.Forms.PictureBox calibrationHelp;
+        private System.Windows.Forms.PictureBox framerateHelp;
+        private System.Windows.Forms.PictureBox baseNeedleHelp;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
 
