@@ -22,6 +22,7 @@ namespace ImageProcessing
         Bitmap displayedImage;
         int frameRate;
         double baseToNeedleHeight = -1; //cm
+        string folderPath;
         AboutWindow loadingWindow = new AboutWindow();
 
         //Run button locks - does not enable until both are true

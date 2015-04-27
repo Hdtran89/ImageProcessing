@@ -77,7 +77,7 @@
             // currentImagePictureBox
             // 
             this.currentImagePictureBox.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.currentImagePictureBox.Location = new System.Drawing.Point(67, 32);
+            this.currentImagePictureBox.Location = new System.Drawing.Point(73, 32);
             this.currentImagePictureBox.Name = "currentImagePictureBox";
             this.currentImagePictureBox.Size = new System.Drawing.Size(512, 384);
             this.currentImagePictureBox.TabIndex = 0;
@@ -86,7 +86,7 @@
             // statusLabel
             // 
             this.statusLabel.AutoSize = true;
-            this.statusLabel.Location = new System.Drawing.Point(61, 441);
+            this.statusLabel.Location = new System.Drawing.Point(67, 441);
             this.statusLabel.Name = "statusLabel";
             this.statusLabel.Size = new System.Drawing.Size(38, 13);
             this.statusLabel.TabIndex = 1;
@@ -319,7 +319,7 @@
             // 
             // runProgressBar
             // 
-            this.runProgressBar.Location = new System.Drawing.Point(254, 434);
+            this.runProgressBar.Location = new System.Drawing.Point(260, 434);
             this.runProgressBar.Name = "runProgressBar";
             this.runProgressBar.Size = new System.Drawing.Size(325, 23);
             this.runProgressBar.TabIndex = 9;
@@ -414,6 +414,7 @@
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.currentImagePictureBox);
             this.Controls.Add(this.menuStrip);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "ImageProcessingForm";
