@@ -20,9 +20,8 @@ namespace ImageProcessing
         DropletImage[] dropletImages;   //Stores every DropletImage object
 
         Bitmap displayedImage;
-        int frameRate = 100;
+        int frameRate;
         double baseToNeedleHeight = -1; //cm
-        string folderPath;
         AboutWindow loadingWindow = new AboutWindow();
 
         //Run button locks - does not enable until both are true
@@ -46,8 +45,6 @@ namespace ImageProcessing
 
             if (result == DialogResult.OK)
             {
-                //loadingWindow.Show();
-                //folderPath = loadImagesDialog.SelectedPath;
                 //Store file names of images within selected folder - both .TIF and .BMP files
                 string[] tifImages = Directory.GetFiles(loadImagesDialog.SelectedPath, "*.tif");
                 string[] bmpImages = Directory.GetFiles(loadImagesDialog.SelectedPath, "*.bmp");
@@ -84,7 +81,7 @@ namespace ImageProcessing
 
                     /* Use distance between base and needle in pixels 
                        and baseNeedleHeight in cm to calculate cm per pixel */
-                    ConvertPxToCm();
+                    DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
 
                     //Display the number of files loaded in the status label
                     statusLabel.Text = "Loaded " + images.Length + " images.";
@@ -108,7 +105,6 @@ namespace ImageProcessing
                 }
 
             }
-            //loadingWindow.Hide();
         }
 
         //Note: Calculations change everytime you calibrate... for some reason
@@ -123,7 +119,7 @@ namespace ImageProcessing
 
             /* Use distance between base and needle in pixels 
                and baseNeedleHeight in cm to calculate cm per pixel */
-            ConvertPxToCm();
+            DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
 
             dropletImages[4].PreprocessImage();
             dropletImages[4].DetermineCentroid();
@@ -139,6 +135,26 @@ namespace ImageProcessing
 
         }
 
+        //Validate, handle baseNeedleHeight input and update baseToNeedleHeight if accepted
+        private void baseNeedleHeightTextBox_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (baseNeedleHeightTextBox.Text != "")
+                {
+                    if (Double.Parse(baseNeedleHeightTextBox.Text) > 0)
+                        baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
+                    else
+                        MessageBox.Show("Please enter a positive number for the base/needle height.",
+                            "Negative Base/Needle Height", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Invalid height input. Please make sure you input a positive numeric value.",
+                    "Invalid Base/Needle Height", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         private void CreateConvergenceMatrix()
         {
 
@@ -160,16 +176,7 @@ namespace ImageProcessing
             }
         }
 
-        private void ConvertPxToCm()
-        {
-            //Convert pixels to cm units using baseNeedleHeight relationship
-            // -based on convergence matrix
-            if (baseNeedleHeightTextBox.Text != "")
-            {
-                baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
-            }
-            DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
-        }
+       
 
         private void runButton_Click(object sender, EventArgs e)
         {
@@ -178,7 +185,7 @@ namespace ImageProcessing
             
             //Necessary operations before processing begins
             CreateConvergenceMatrix();
-            ConvertPxToCm();
+            DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
 
             frameRate = (int)frameRateNumericUpDown.Value;
             DropletImage.ConvertFRtoSecPerImage(frameRate);
@@ -205,7 +212,7 @@ namespace ImageProcessing
         private void frameRateNumericUpDown_ValueChanged(object sender, EventArgs e)
         {
             frameRate = (int)frameRateNumericUpDown.Value;
-            Console.WriteLine(frameRate);
+            //Console.WriteLine(frameRate);
         }
 
         private void browseButton_Click(object sender, EventArgs e)
@@ -388,5 +395,7 @@ namespace ImageProcessing
             AboutWindow aboutWindow = new AboutWindow();
             aboutWindow.ShowDialog();
         }
+
+        
     }
 }

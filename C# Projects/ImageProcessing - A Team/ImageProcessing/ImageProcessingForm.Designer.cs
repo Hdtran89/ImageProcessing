@@ -38,6 +38,9 @@
             this.unitsLabel = new System.Windows.Forms.Label();
             this.frameRateNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.formControlsGroupBox = new System.Windows.Forms.GroupBox();
+            this.baseNeedleHelp = new System.Windows.Forms.PictureBox();
+            this.framerateHelp = new System.Windows.Forms.PictureBox();
+            this.calibrationHelp = new System.Windows.Forms.PictureBox();
             this.saveDestinationTextBox = new System.Windows.Forms.TextBox();
             this.saveDestinationLabel = new System.Windows.Forms.Label();
             this.browseButton = new System.Windows.Forms.Button();
@@ -60,18 +63,15 @@
             this.loadImagesDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.calibrationHelp = new System.Windows.Forms.PictureBox();
-            this.framerateHelp = new System.Windows.Forms.PictureBox();
-            this.baseNeedleHelp = new System.Windows.Forms.PictureBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).BeginInit();
             this.formControlsGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.baseNeedleHelp)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.framerateHelp)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.calibrationHelp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.blackWhiteNumericUpDown)).BeginInit();
             this.menuStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.calibrationHelp)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.framerateHelp)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.baseNeedleHelp)).BeginInit();
             this.SuspendLayout();
             // 
             // currentImagePictureBox
@@ -120,6 +120,7 @@
             this.baseNeedleHeightTextBox.Name = "baseNeedleHeightTextBox";
             this.baseNeedleHeightTextBox.Size = new System.Drawing.Size(55, 20);
             this.baseNeedleHeightTextBox.TabIndex = 5;
+            this.baseNeedleHeightTextBox.TextChanged += new System.EventHandler(this.baseNeedleHeightTextBox_TextChanged);
             // 
             // unitsLabel
             // 
@@ -179,6 +180,38 @@
             this.formControlsGroupBox.TabIndex = 8;
             this.formControlsGroupBox.TabStop = false;
             this.formControlsGroupBox.Text = "Controls";
+            // 
+            // baseNeedleHelp
+            // 
+            this.baseNeedleHelp.Image = ((System.Drawing.Image)(resources.GetObject("baseNeedleHelp.Image")));
+            this.baseNeedleHelp.Location = new System.Drawing.Point(469, 31);
+            this.baseNeedleHelp.Name = "baseNeedleHelp";
+            this.baseNeedleHelp.Size = new System.Drawing.Size(15, 15);
+            this.baseNeedleHelp.TabIndex = 22;
+            this.baseNeedleHelp.TabStop = false;
+            this.toolTip1.SetToolTip(this.baseNeedleHelp, "Enter the vertical distance between the tip of the \r\nneedle and the base directly" +
+        " below it in centimeters .");
+            // 
+            // framerateHelp
+            // 
+            this.framerateHelp.Image = ((System.Drawing.Image)(resources.GetObject("framerateHelp.Image")));
+            this.framerateHelp.Location = new System.Drawing.Point(331, 30);
+            this.framerateHelp.Name = "framerateHelp";
+            this.framerateHelp.Size = new System.Drawing.Size(15, 15);
+            this.framerateHelp.TabIndex = 21;
+            this.framerateHelp.TabStop = false;
+            this.toolTip1.SetToolTip(this.framerateHelp, "Enter the \"frames per second\" setting of the \r\ncamera used to obtain the loaded i" +
+        "mages.");
+            // 
+            // calibrationHelp
+            // 
+            this.calibrationHelp.Image = ((System.Drawing.Image)(resources.GetObject("calibrationHelp.Image")));
+            this.calibrationHelp.Location = new System.Drawing.Point(226, 31);
+            this.calibrationHelp.Name = "calibrationHelp";
+            this.calibrationHelp.Size = new System.Drawing.Size(15, 15);
+            this.calibrationHelp.TabIndex = 11;
+            this.calibrationHelp.TabStop = false;
+            this.toolTip1.SetToolTip(this.calibrationHelp, resources.GetString("calibrationHelp.ToolTip"));
             // 
             // saveDestinationTextBox
             // 
@@ -363,38 +396,6 @@
             this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
             // 
-            // calibrationHelp
-            // 
-            this.calibrationHelp.Image = ((System.Drawing.Image)(resources.GetObject("calibrationHelp.Image")));
-            this.calibrationHelp.Location = new System.Drawing.Point(226, 31);
-            this.calibrationHelp.Name = "calibrationHelp";
-            this.calibrationHelp.Size = new System.Drawing.Size(15, 15);
-            this.calibrationHelp.TabIndex = 11;
-            this.calibrationHelp.TabStop = false;
-            this.toolTip1.SetToolTip(this.calibrationHelp, resources.GetString("calibrationHelp.ToolTip"));
-            // 
-            // framerateHelp
-            // 
-            this.framerateHelp.Image = ((System.Drawing.Image)(resources.GetObject("framerateHelp.Image")));
-            this.framerateHelp.Location = new System.Drawing.Point(331, 30);
-            this.framerateHelp.Name = "framerateHelp";
-            this.framerateHelp.Size = new System.Drawing.Size(15, 15);
-            this.framerateHelp.TabIndex = 21;
-            this.framerateHelp.TabStop = false;
-            this.toolTip1.SetToolTip(this.framerateHelp, "Enter the \"frames per second\" setting of the \r\ncamera used to obtain the loaded i" +
-        "mages.");
-            // 
-            // baseNeedleHelp
-            // 
-            this.baseNeedleHelp.Image = ((System.Drawing.Image)(resources.GetObject("baseNeedleHelp.Image")));
-            this.baseNeedleHelp.Location = new System.Drawing.Point(469, 31);
-            this.baseNeedleHelp.Name = "baseNeedleHelp";
-            this.baseNeedleHelp.Size = new System.Drawing.Size(15, 15);
-            this.baseNeedleHelp.TabIndex = 22;
-            this.baseNeedleHelp.TabStop = false;
-            this.toolTip1.SetToolTip(this.baseNeedleHelp, "Enter the vertical distance between the tip of the \r\nneedle and the base directly" +
-        " below it in centimeters .");
-            // 
             // toolTip1
             // 
             this.toolTip1.AutoPopDelay = 8000;
@@ -421,12 +422,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.frameRateNumericUpDown)).EndInit();
             this.formControlsGroupBox.ResumeLayout(false);
             this.formControlsGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.baseNeedleHelp)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.framerateHelp)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.calibrationHelp)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.blackWhiteNumericUpDown)).EndInit();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.calibrationHelp)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.framerateHelp)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.baseNeedleHelp)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

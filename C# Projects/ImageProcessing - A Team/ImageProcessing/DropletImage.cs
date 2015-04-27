@@ -439,16 +439,18 @@ namespace ImageProcessing
         {
             centroidX = 0;
             centroidY = 0;
-
-            foreach (Coord circumPoint in circumferencePoints)
-            {
-                centroidX += circumPoint.xCoord;
-                centroidY += circumPoint.yCoord;
-            }
-
-            centroidX /= circumferencePoints.Count;
-            centroidY /= circumferencePoints.Count;
             
+            if (circumferencePoints.Count != 0)
+            {
+                foreach (Coord circumPoint in circumferencePoints)
+                {
+                    centroidX += circumPoint.xCoord;
+                    centroidY += circumPoint.yCoord;
+                }
+
+                centroidX /= circumferencePoints.Count;
+                centroidY /= circumferencePoints.Count;
+            }
 
             Console.WriteLine("x: " + centroidX + " y: " + centroidY);
             realCentroidX = centroidX * cmPerPixel;
