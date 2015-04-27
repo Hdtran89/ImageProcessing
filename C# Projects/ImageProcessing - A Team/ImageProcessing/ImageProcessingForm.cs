@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ImageProcessing
 {
@@ -17,16 +18,26 @@ namespace ImageProcessing
     {
         string[] images;                //Stores file names of all images
         DropletImage[] dropletImages;   //Stores every DropletImage object
-		
-		bool[,] convergenceMatrix;
-        bool[,] dropletMatrix;
-        double baseToNeedleHeight; 
+
         Bitmap displayedImage;
-        int frameRate = 0;
+        int frameRate = 100;
+        double baseToNeedleHeight = -1; //cm
+        string folderPath;
+        AboutWindow loadingWindow = new AboutWindow();
+
+        //Run button locks - does not enable until both are true
+        bool loadedImages;
+        bool setSaveDestination;
 
         public ImageProcessingForm()
         {
             InitializeComponent();
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.WorkerSupportsCancellation = true;
+
+            //Initialize Run button locks
+            loadedImages = false;
+            setSaveDestination = false;
         }
 
         private void loadButton_Click(object sender, EventArgs e)
@@ -35,6 +46,8 @@ namespace ImageProcessing
 
             if (result == DialogResult.OK)
             {
+                //loadingWindow.Show();
+                //folderPath = loadImagesDialog.SelectedPath;
                 //Store file names of images within selected folder - both .TIF and .BMP files
                 string[] tifImages = Directory.GetFiles(loadImagesDialog.SelectedPath, "*.tif");
                 string[] bmpImages = Directory.GetFiles(loadImagesDialog.SelectedPath, "*.bmp");
@@ -43,309 +56,146 @@ namespace ImageProcessing
                 images = new string[tifImages.Length + bmpImages.Length];
                 tifImages.CopyTo(images, 0);
                 bmpImages.CopyTo(images, tifImages.Length);
-
-                //Display loading status
-                statusLabel.Text = "Loading data...";
-
-                //Create a Droplet Image object for every given image
-                dropletImages = new DropletImage[images.Length];
                 runProgressBar.Maximum = images.Length;
-                for (int i = 0; i < images.Length; i++)
+
+                if (images.Length != 0)
                 {
-                    //Create the Droplet Image object
-                    dropletImages[i] = new DropletImage(new Bitmap(images[i]), i);
-                }
 
-                //Display the number of files loaded in the status label
-                statusLabel.Text = "Loaded " + images.Length + " images.";
-
-                //Set displayed image to the fourth in the list
-                dropletImages[4].CreateBlackWhiteImage();
-                displayedImage = dropletImages[4].GetBlackWhiteImage();
-                //Set picturebox to black and white image
-                //currentImagePictureBox.Image = displayedImage;
-
-                //initialize the boolean area for determining test area
-                convergenceMatrix = GetBooleanMatrix(displayedImage);
-
-                //test 4 random images against initial to create the convergence matrix
-                Random randomImageIndex = new Random();
-                for (int x = 0; x < 4; x++)
-                {
-                    int index = randomImageIndex.Next(0,images.Length);
-                    dropletImages[index].CreateBlackWhiteImage();
-                    Bitmap testImage = dropletImages[index].GetBlackWhiteImage();
-                    bool[,] tempTestMatrix = new bool[testImage.Width, testImage.Height];
-                    tempTestMatrix = GetBooleanMatrix(testImage);
-                    CompareTestArea(convergenceMatrix, tempTestMatrix);
-                }
-                
-                //Test one image to get just the drop
-                dropletImages[10].CreateBlackWhiteImage();
-                Bitmap test1Image = dropletImages[10].GetBlackWhiteImage();
-                bool[,] tempTest1Matrix = new bool[test1Image.Width, test1Image.Height];
-                tempTest1Matrix = GetBooleanMatrix(test1Image);
-                IsolateDroplet(convergenceMatrix, tempTest1Matrix);
-                FillDroplet();
-                Bitmap dropImage = new Bitmap(displayedImage.Width, displayedImage.Height);
-                for (int y = 0; y < displayedImage.Height; y++)
-                {
-                    for (int x = 0; x < displayedImage.Width; x++)
+                    //Display loading status
+                    statusLabel.Text = "Loading data...";
+                    //Create a Droplet Image object for every given image
+                    dropletImages = new DropletImage[images.Length];
+                    for (int i = 0; i < images.Length; i++)
                     {
-                        if (dropletMatrix[x,y] ==true)
-                        {
-                            dropImage.SetPixel(x, y, Color.Red);
-                        }
-                        else
-                        {
-                            dropImage.SetPixel(x, y, Color.White);
-                        }
+                        //Create the Droplet Image object
+                        dropletImages[i] = new DropletImage(new Bitmap(images[i]), i);
                     }
+
+                    //Convert framesPerSec to seconds per image
+                    if (frameRateNumericUpDown.Value != 0)
+                    {
+                        frameRate = (int)frameRateNumericUpDown.Value;
+                    }
+                    DropletImage.ConvertFRtoSecPerImage(frameRate);
+
+                    /* Create convergence matrix containing location of just needle and base */
+                    /* Based on Black/White Calibration value */
+                    CreateConvergenceMatrix();
+
+                    /* Use distance between base and needle in pixels 
+                       and baseNeedleHeight in cm to calculate cm per pixel */
+                    ConvertPxToCm();
+
+                    //Display the number of files loaded in the status label
+                    statusLabel.Text = "Loaded " + images.Length + " images.";
+
+                    dropletImages[4].PreprocessImage();
+                    dropletImages[4].DetermineCentroid();
+                    displayedImage = dropletImages[4].GetBlackWhiteImage();
+
+                    //Set picturebox to black and white image
+                    currentImagePictureBox.Image = displayedImage;
+
+                    //Enable the 'Calibrate' button and specify that images have been loaded
+                    loadedImages = true;
+                    enableRunButton();
+                    calibrateButton.Enabled = true;
+
                 }
-
-                //dropletImages[10].SetDropletMatrix(dropletMatrix);
-
-                currentImagePictureBox.Image = dropImage;
-                    
-
-                //Enable the 'Run' button and 'Calibrate' button
-                runButton.Enabled = true;
-                runToolStripMenuItem.Enabled = true;
-                calibrateButton.Enabled = true;
+                else
+                {
+                    MessageBox.Show("Image folder was not selected.", "Loading Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
 
             }
-        }
-		
-		//use black and white of entire image to create boolean matrix
-        private bool[,] GetBooleanMatrix(Bitmap testImage)
-        {
-
-            bool[,] tempMatrix = new bool[testImage.Width, testImage.Height];
-            for (int y = 0; y < testImage.Height; y++)
-            {
-                for (int x = 0; x < testImage.Width; x++)
-                {
-                    if (testImage.GetPixel(x, y) == Color.FromArgb(255, 255, 255, 255))
-                    {
-                        tempMatrix[x, y] = false;
-                    }
-                    else
-                    {
-                        tempMatrix[x, y] = true;
-                    }
-                }
-            }
-            return tempMatrix;
+            //loadingWindow.Hide();
         }
 
-        //compare boolean matrix of base/needle with another image
-        private void CompareTestArea(bool[,] primaryMatrix, bool[,] testMatrix)
-        {
-            //Console.Write(primaryMatrix.GetLength(0));
-            //rows of convergence matrix
-            for (int y = 0; y < primaryMatrix.GetLength(1); y++)
-            {
-                //col
-                for (int x = 0; x < primaryMatrix.GetLength(0); x++)
-                {
-                    //if either primaryMatrix and testMatrix are false, then primaryMatrix is false
-                    if (!(primaryMatrix[x, y] == true && testMatrix[x, y] == true))
-                    {
-                        primaryMatrix[x, y] = false;
-                    }
-                }
-            }
-        }
-
-        //compare dropletimage matrix with convergence to isolate the drop
-        private void IsolateDroplet(bool[,] convergenceMatrix, bool[,] dropletImageMatrix)
-        {
-            dropletMatrix = new bool[dropletImageMatrix.GetLength(0), dropletImageMatrix.GetLength(1)];
-
-            //rows of convergence matrix
-            for (int y = 0; y < convergenceMatrix.GetLength(1); y++)
-            {
-                //col
-                for (int x = 0; x < convergenceMatrix.GetLength(0); x++)
-                {
-                    //if convergence matrix is false and dropletImage is true, then thats the drop
-                    if ((convergenceMatrix[x, y] == false && dropletImageMatrix[x, y] == true))
-                    {
-                        dropletMatrix[x, y] = true;
-                    }
-                    else
-                    {
-                        dropletMatrix[x, y] = false;
-                    }
-                }
-            }
-        }
-
-        //eliminate white center
-        private void FillDroplet()
-        {
-           
-            int constantThreshold = 3;
-            //rows of dropletMatrix 
-            for (int y = 0; y < dropletMatrix.GetLength(1); y++)
-            {
-                //col
-                int x = 0;
-                int leftX = 0;
-                int rightX = 0;
-                int leftPixelCnt = 0;
-                int rightPixelCnt = 0;
-                while (x < dropletMatrix.GetLength(0) && leftPixelCnt < constantThreshold)
-                {
-                    //if convergence matrix is false and dropletImage is true, then thats the drop
-                    if ((dropletMatrix[x, y] == true))
-                    {
-                        leftPixelCnt++;
-                    }
-                    x++;
-                }
-                if (leftPixelCnt == constantThreshold)
-                    leftX = x;
-
-                x = dropletMatrix.GetLength(0)-1;
-                while (x > 0 && rightPixelCnt < constantThreshold)
-                {
-                    //if convergence matrix is false and dropletImage is true, then thats the drop
-                    if ((dropletMatrix[x, y] == true))
-                    {
-                        rightPixelCnt++;
-                    }
-                    x--;
-                }
-
-                if (rightPixelCnt == constantThreshold)
-                    rightX = x;
-
-                if (leftPixelCnt >= constantThreshold && rightPixelCnt >= constantThreshold)
-                {
-                    for (int i = leftX; i < rightX; i++)
-                    {
-                        dropletMatrix[i, y] = true;
-                    }
-                }
-                
-            }
-        }
-
-        private void baseNeedleHeightTextBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void blackWhiteNumericUpDown_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
+        //Note: Calculations change everytime you calibrate... for some reason
         private void calibrateButton_Click(object sender, EventArgs e)
         {
-            //currentImagePictureBox.Image = null;
-            //currentImagePictureBox.Invalidate();
-            int greyscaleThreshold = (int)blackWhiteNumericUpDown.Value;
-            
-            if (greyscaleThreshold != 32)
-            {
-                //Set displayed image to the fourth in the list and adjust according to new calibration value
-                dropletImages[4].CreateBlackWhiteImage(greyscaleThreshold);
-                displayedImage = dropletImages[4].GetBlackWhiteImage();
 
-                //currentImagePictureBox.Image = null;
-                //Set picturebox to black and white image
-                currentImagePictureBox.Image = displayedImage;
-                currentImagePictureBox.Refresh();
+            Graphics graphic = Graphics.FromImage(currentImagePictureBox.Image);
+            graphic.Clear(Color.White);//Color to fill the background and reset the box
+
+            /* Create convergence matrix containing location of just needle and base */
+            CreateConvergenceMatrix();
+
+            /* Use distance between base and needle in pixels 
+               and baseNeedleHeight in cm to calculate cm per pixel */
+            ConvertPxToCm();
+
+            dropletImages[4].PreprocessImage();
+            dropletImages[4].DetermineCentroid();
+
+            //Set displayed image to the fourth in the list and adjust according to new calibration value
+            displayedImage = dropletImages[4].GetBlackWhiteImage();
+            
+            //Set picturebox to black and white image
+            //currentImagePictureBox.Image = null;
+            currentImagePictureBox.Image = displayedImage;
+            //currentImagePictureBox.Refresh();
+
+
+        }
+
+        private void CreateConvergenceMatrix()
+        {
+
+            int greyscaleThreshold = (int)blackWhiteNumericUpDown.Value;
+            //Set the greyscale threshold
+            DropletImage.SetGreyScaleThreshold(greyscaleThreshold);
+
+            //Initialize convergence matrix to be all true.
+            dropletImages[0].InitializeConvergenceMatrix();
+            //Determine the location of the base and needle using test images
+            int numTestImages = 5;
+            //Always use the first and last images for convergence matrix
+            dropletImages[0].CompareTestArea();
+            dropletImages[dropletImages.Length - 1].CompareTestArea();
+            //Evenly space out the remaining images being used for convergence matrix
+            for (int i = 1; i < numTestImages - 1; i++)
+            {
+                dropletImages[i * (dropletImages.Length / (numTestImages - 1))].CompareTestArea();
             }
+        }
+
+        private void ConvertPxToCm()
+        {
+            //Convert pixels to cm units using baseNeedleHeight relationship
+            // -based on convergence matrix
+            if (baseNeedleHeightTextBox.Text != "")
+            {
+                baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
+            }
+            DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
         }
 
         private void runButton_Click(object sender, EventArgs e)
         {
-			//Number of total threads
-			int numThreads = 4;
-			
-			//Initialize threads
-			Thread[] threads = new Thread[numThreads];
-			
-			//Assign image ranges to each thread
-            int[] threadingStartIndices = new int[numThreads];
-            int[] threadingEndIndices = new int[numThreads];
-			int imagesPerThread = dropletImages.Length / numThreads;
-			for(int i = 0; i < numThreads - 1; i++){
-                threadingStartIndices[i] = i * imagesPerThread;
-                threadingEndIndices[i] = (i + 1) * imagesPerThread;
-			}
-			//The last thread will cover the last quarter of images along with any excess images
-            threadingStartIndices[numThreads - 1] = threadingEndIndices[numThreads - 2];
-			threadingEndIndices[numThreads - 1] = dropletImages.Length - 1;
-			
+            //Disable the Run button in the menu strip
+            runToolStripMenuItem.Enabled = false;
+            
+            //Necessary operations before processing begins
+            CreateConvergenceMatrix();
+            ConvertPxToCm();
 
-			//Perform one operation on each image at a time
-			
-			//Determine centroids of each image using threads
-			for(int i = 0; i < numThreads; i++){
-				//Begin the thread's processing
-				threads[i] = new Thread(() => threadedCentroidDetermination(threadingStartIndices[i], threadingEndIndices[i]));
-				threads[i].Start();
-			}
-			
-			//Wait until threads are all finished before continuing
-			for(int i = 0; i < numThreads; i++){
-				threads[i].Join();
-			}
-			
-			//Determine velocities of each image
-			for(int i = 0; i < numThreads; i++){
-				//Begin the thread's processing
-                threads[i] = new Thread(() => threadedVelocityDetermination(threadingStartIndices[i], threadingEndIndices[i]));
-				threads[i].Start();
-			}
-			
-			//Wait until threads are all finished before continuing
-			for(int i = 0; i < numThreads; i++){
-				threads[i].Join();
-			}
-			
-			//Determine accelerations of each image
-			for(int i = 0; i < numThreads; i++){				
-				//Begin the thread's processing
-                threads[i] = new Thread(() => threadedAccelerationDetermination(threadingStartIndices[i], threadingEndIndices[i]));
-				threads[i].Start();
-			}
-			
-			//Wait until threads are all finished before continuing
-			for(int i = 0; i < numThreads; i++){
-				threads[i].Join();
-			}
-			
-			//Give all image data to the output
-			Output output = new Output("fileName.xcl", dropletImages.Length);
-			for(int i = 0; i < dropletImages.Length; i++){
-				output.insertRow(dropletImages[i], i);
-			}
-			//Generate excel file
-			output.generateExcel();
+            frameRate = (int)frameRateNumericUpDown.Value;
+            DropletImage.ConvertFRtoSecPerImage(frameRate);
+
+            //Begin Image Processing
+            backgroundWorker.RunWorkerAsync();
+
+            //Change Run button into Stop button
+            runButton.Text = "Stop";
+            runButton.Click -= this.runButton_Click;
+            runButton.Click += this.stopButton_Click;
         }
 
-		private void threadedCentroidDetermination(int startIndex, int endIndex){
-			for(int i = startIndex; i < endIndex; i++){
-				dropletImages[i].DetermineCentroid();
-			}
-		}
-		
-		private void threadedVelocityDetermination(int startIndex, int endIndex){
-			for(int i = startIndex; i < endIndex; i++){
-				dropletImages[i].DetermineVelocity();
-			}
-		}
-		
-		private void threadedAccelerationDetermination(int startIndex, int endIndex){
-			for(int i = startIndex; i < endIndex; i++){
-				dropletImages[i].DetermineAcceleration();
-			}
-		}
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+            backgroundWorker.CancelAsync();
+        }
 		
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -356,6 +206,187 @@ namespace ImageProcessing
         {
             frameRate = (int)frameRateNumericUpDown.Value;
             Console.WriteLine(frameRate);
+        }
+
+        private void browseButton_Click(object sender, EventArgs e)
+        {
+            saveFileDialog.FileName = "output.xlsx";
+            saveFileDialog.Filter = "Excel Files (*.xlsx)|*.xlsx";
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                folderPath = saveFileDialog.FileName;
+                saveDestinationTextBox.Text = folderPath;
+
+                //Specify that the save destination has been set
+                setSaveDestination = true;
+                enableRunButton();
+            }
+        }
+
+        private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            int currentProgress = 0;
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.PreprocessImage();
+
+                //Update progress bar
+                currentProgress++;
+                backgroundWorker.ReportProgress(currentProgress);
+
+                //Check if user cancelled processing
+                if (backgroundWorker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    backgroundWorker.ReportProgress(0);
+                    return;
+                }
+            });
+
+            //Determine centroid of each image
+            backgroundWorker.ReportProgress(-1);
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.DetermineCentroid();
+            });
+
+            //Pass the previous image's centroid to each image
+            for (int i = 1; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].SetPrevCentroidValues(dropletImages[i - 1].GetXCentroid(), dropletImages[i - 1].GetYCentroid());
+            }
+
+            //Check if user cancelled processing
+            if (backgroundWorker.CancellationPending)
+            {
+                e.Cancel = true;
+                backgroundWorker.ReportProgress(0);
+                return;
+            }
+
+            //Determine velocity of each image
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.DetermineVelocity();
+            });
+
+            //Pass the previous image's velocity to each image
+            for (int i = 1; i < dropletImages.Length; i++)
+            {
+                dropletImages[i].SetPrevVelocityValues(dropletImages[i - 1].GetXVelocity(), dropletImages[i - 1].GetYVelocity());
+            }
+
+            //Check if user cancelled processing
+            if (backgroundWorker.CancellationPending)
+            {
+                e.Cancel = true;
+                backgroundWorker.ReportProgress(0);
+                return;
+            }
+
+            //Determine acceleration of each image
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.DetermineAcceleration();
+            });
+
+            //Determine volume of each image
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                dropletImage.DetermineVolume();
+            });
+
+            //Check if user cancelled processing
+            if (backgroundWorker.CancellationPending)
+            {
+                e.Cancel = true;
+                backgroundWorker.ReportProgress(0);
+                return;
+            }
+
+            //Create Output object to create Excel file
+            backgroundWorker.ReportProgress(-2);
+            Output output = new Output(folderPath, dropletImages.Length);
+
+            //Pass information into output
+            for (int i = 0; i < dropletImages.Length; i++)
+            {
+                output.insertRow(dropletImages[i], i);
+            }
+
+            //Check if user cancelled processing
+            if (backgroundWorker.CancellationPending)
+            {
+                e.Cancel = true;
+                backgroundWorker.ReportProgress(0);
+                return;
+            }
+
+            //Create Excel file
+            output.generateExcel();
+        }
+
+        private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.ProgressPercentage > 0)
+            {
+                statusLabel.Text = "Processing Images: " + e.ProgressPercentage.ToString() + "/" + dropletImages.Length.ToString();
+                runProgressBar.Value = e.ProgressPercentage;
+            }
+            if (e.ProgressPercentage == -1)
+            {
+                statusLabel.Text = "Calculating Drop Measurements";
+            }
+            if (e.ProgressPercentage == -2)
+            {
+                statusLabel.Text = "Generating Spreadsheet/Data Plots";
+            }
+            if (e.ProgressPercentage == 0)
+            {
+                statusLabel.Text = "Stopped Processing";
+                runProgressBar.Value = 0;
+
+                //Change Stop button back into Run button
+                runButton.Text = "Run";
+                runButton.Click -= this.stopButton_Click;
+                runButton.Click += this.runButton_Click;
+            }
+        }
+
+        private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            statusLabel.Text = "Processing Complete!";
+            runProgressBar.Value = runProgressBar.Maximum;
+
+            //Reset the save destination
+            folderPath = "";
+            saveDestinationTextBox.Text = folderPath;
+            setSaveDestination = false;
+            runButton.Enabled = false;
+
+            //Change Stop button back into Run button
+            runButton.Text = "Run";
+            runButton.Click -= this.stopButton_Click;
+            runButton.Click += this.runButton_Click;
+
+            
+        }
+
+        private void enableRunButton()
+        {
+            //If both conditions are met, enable the Run button
+            if (loadedImages && setSaveDestination)
+            {
+                runButton.Enabled = true;
+                runToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void aboutUsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutWindow aboutWindow = new AboutWindow();
+            aboutWindow.ShowDialog();
         }
     }
 }
