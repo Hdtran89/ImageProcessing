@@ -184,7 +184,7 @@
             // baseNeedleHelp
             // 
             this.baseNeedleHelp.Image = ((System.Drawing.Image)(resources.GetObject("baseNeedleHelp.Image")));
-            this.baseNeedleHelp.Location = new System.Drawing.Point(469, 31);
+            this.baseNeedleHelp.Location = new System.Drawing.Point(470, 31);
             this.baseNeedleHelp.Name = "baseNeedleHelp";
             this.baseNeedleHelp.Size = new System.Drawing.Size(15, 15);
             this.baseNeedleHelp.TabIndex = 22;
@@ -195,7 +195,7 @@
             // framerateHelp
             // 
             this.framerateHelp.Image = ((System.Drawing.Image)(resources.GetObject("framerateHelp.Image")));
-            this.framerateHelp.Location = new System.Drawing.Point(331, 30);
+            this.framerateHelp.Location = new System.Drawing.Point(331, 31);
             this.framerateHelp.Name = "framerateHelp";
             this.framerateHelp.Size = new System.Drawing.Size(15, 15);
             this.framerateHelp.TabIndex = 21;
@@ -311,7 +311,7 @@
             // 
             this.baseNeedleHeightLabel.AutoSize = true;
             this.baseNeedleHeightLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.baseNeedleHeightLabel.Location = new System.Drawing.Point(367, 31);
+            this.baseNeedleHeightLabel.Location = new System.Drawing.Point(369, 31);
             this.baseNeedleHeightLabel.Name = "baseNeedleHeightLabel";
             this.baseNeedleHeightLabel.Size = new System.Drawing.Size(104, 13);
             this.baseNeedleHeightLabel.TabIndex = 12;
@@ -399,7 +399,7 @@
             // toolTip1
             // 
             this.toolTip1.AutoPopDelay = 8000;
-            this.toolTip1.InitialDelay = 600;
+            this.toolTip1.InitialDelay = 400;
             this.toolTip1.IsBalloon = true;
             this.toolTip1.ReshowDelay = 500;
             this.toolTip1.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
