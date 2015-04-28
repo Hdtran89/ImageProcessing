@@ -20,9 +20,10 @@ namespace ImageProcessing
         DropletImage[] dropletImages;   //Stores every DropletImage object
 
         Bitmap displayedImage;
-        int frameRate = 100;
+        int frameRate;
         double baseToNeedleHeight = -1; //cm
         string folderPath;
+        string newDirectory;
         AboutWindow loadingWindow = new AboutWindow();
 
         //Run button locks - does not enable until both are true
@@ -46,8 +47,6 @@ namespace ImageProcessing
 
             if (result == DialogResult.OK)
             {
-                //loadingWindow.Show();
-                //folderPath = loadImagesDialog.SelectedPath;
                 //Store file names of images within selected folder - both .TIF and .BMP files
                 string[] tifImages = Directory.GetFiles(loadImagesDialog.SelectedPath, "*.tif");
                 string[] bmpImages = Directory.GetFiles(loadImagesDialog.SelectedPath, "*.bmp");
@@ -60,22 +59,34 @@ namespace ImageProcessing
 
                 if (images.Length != 0)
                 {
+                    //path of selected folder
+                    string selectedfolderPath = loadImagesDialog.SelectedPath;
+                    //path of directory of selected folder
+                    string dirName = Path.GetDirectoryName(selectedfolderPath);
+
+                    //just the name of the image folder
+                    FileInfo fInfo = new FileInfo(images[0]);
+                    string imageFolderName = fInfo.Directory.Name;
+
+                    //make new FOLDER for the processed images with same name + _processed in same location(dirName)
+                    newDirectory = dirName + "/" + imageFolderName + "_processed";
+                    if (!Directory.Exists(newDirectory)) 
+                        Directory.CreateDirectory(newDirectory); 
 
                     //Display loading status
                     statusLabel.Text = "Loading data...";
                     //Create a Droplet Image object for every given image
                     dropletImages = new DropletImage[images.Length];
+                    string fileName = "";
+
                     for (int i = 0; i < images.Length; i++)
                     {
+                        fileName = new DirectoryInfo(@images[i]).Name;
                         //Create the Droplet Image object
-                        dropletImages[i] = new DropletImage(new Bitmap(images[i]), i);
+                        dropletImages[i] = new DropletImage(new Bitmap(images[i]), i, fileName);
                     }
 
                     //Convert framesPerSec to seconds per image
-                    if (frameRateNumericUpDown.Value != 0)
-                    {
-                        frameRate = (int)frameRateNumericUpDown.Value;
-                    }
                     DropletImage.ConvertFRtoSecPerImage(frameRate);
 
                     /* Create convergence matrix containing location of just needle and base */
@@ -84,7 +95,7 @@ namespace ImageProcessing
 
                     /* Use distance between base and needle in pixels 
                        and baseNeedleHeight in cm to calculate cm per pixel */
-                    ConvertPxToCm();
+                    DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
 
                     //Display the number of files loaded in the status label
                     statusLabel.Text = "Loaded " + images.Length + " images.";
@@ -108,9 +119,8 @@ namespace ImageProcessing
                 }
 
             }
-            //loadingWindow.Hide();
         }
-
+                 
         //Note: Calculations change everytime you calibrate... for some reason
         private void calibrateButton_Click(object sender, EventArgs e)
         {
@@ -123,7 +133,7 @@ namespace ImageProcessing
 
             /* Use distance between base and needle in pixels 
                and baseNeedleHeight in cm to calculate cm per pixel */
-            ConvertPxToCm();
+            DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
 
             dropletImages[4].PreprocessImage();
             dropletImages[4].DetermineCentroid();
@@ -139,6 +149,26 @@ namespace ImageProcessing
 
         }
 
+        //Validate, handle baseNeedleHeight input and update baseToNeedleHeight if accepted
+        private void baseNeedleHeightTextBox_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (baseNeedleHeightTextBox.Text != "")
+                {
+                    if (Double.Parse(baseNeedleHeightTextBox.Text) > 0)
+                        baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
+                    else
+                        MessageBox.Show("Please enter a positive number for the base/needle height.",
+                            "Negative Base/Needle Height", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Invalid height input. Please make sure you input a positive numeric value.",
+                    "Invalid Base/Needle Height", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         private void CreateConvergenceMatrix()
         {
 
@@ -160,16 +190,7 @@ namespace ImageProcessing
             }
         }
 
-        private void ConvertPxToCm()
-        {
-            //Convert pixels to cm units using baseNeedleHeight relationship
-            // -based on convergence matrix
-            if (baseNeedleHeightTextBox.Text != "")
-            {
-                baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
-            }
-            DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
-        }
+       
 
         private void runButton_Click(object sender, EventArgs e)
         {
@@ -178,7 +199,7 @@ namespace ImageProcessing
             
             //Necessary operations before processing begins
             CreateConvergenceMatrix();
-            ConvertPxToCm();
+            DropletImage.ConvertPixelToMicron(baseToNeedleHeight);
 
             frameRate = (int)frameRateNumericUpDown.Value;
             DropletImage.ConvertFRtoSecPerImage(frameRate);
@@ -205,7 +226,7 @@ namespace ImageProcessing
         private void frameRateNumericUpDown_ValueChanged(object sender, EventArgs e)
         {
             frameRate = (int)frameRateNumericUpDown.Value;
-            Console.WriteLine(frameRate);
+            //Console.WriteLine(frameRate);
         }
 
         private void browseButton_Click(object sender, EventArgs e)
@@ -221,6 +242,21 @@ namespace ImageProcessing
                 //Specify that the save destination has been set
                 setSaveDestination = true;
                 enableRunButton();
+            }
+        }
+        /** Creates new files for the processed images
+         *  or overrides file if they already exist
+         */
+        private void CreateProcessedImageFile(string path)
+        {
+            if (!File.Exists(path))
+            {
+                File.Create(path).Close();
+            }
+            else
+            {
+                File.Delete(path);
+                File.Create(path).Close();
             }
         }
 
@@ -246,9 +282,17 @@ namespace ImageProcessing
 
             //Determine centroid of each image
             backgroundWorker.ReportProgress(-1);
+            
             Parallel.ForEach(dropletImages, dropletImage =>
             {
                 dropletImage.DetermineCentroid();
+                /********************COMMENT THE FOLLOWING LINES IF YOU DONT WANT TO CREATE IMAGES***/
+                //path for newImageFile = "newDirectory(originalFolderName_processed)" + originalImageName
+                string newImageFile = newDirectory + "/" + dropletImage.GetImageName();
+                CreateProcessedImageFile(newImageFile);
+                //Save the processed image to newImageFile
+                dropletImage.GetBlackWhiteImage().Save(newImageFile);
+
             });
 
             //Pass the previous image's centroid to each image
@@ -388,5 +432,7 @@ namespace ImageProcessing
             AboutWindow aboutWindow = new AboutWindow();
             aboutWindow.ShowDialog();
         }
+
+        
     }
 }
