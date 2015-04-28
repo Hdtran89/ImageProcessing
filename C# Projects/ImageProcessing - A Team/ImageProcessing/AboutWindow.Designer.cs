@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutWindow));
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.aboutLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -64,6 +65,7 @@
             this.Controls.Add(this.aboutLabel);
             this.Controls.Add(this.pictureBox1);
             this.DoubleBuffered = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AboutWindow";
             this.Text = "About Image Processing Tool";
             this.UseWaitCursor = true;
