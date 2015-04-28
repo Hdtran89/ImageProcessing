@@ -32,7 +32,7 @@ namespace ImageProcessing
         //=== Droplet information ===
 
         //Centroid variables
-        int pixelThreshold = 3;
+        int pixelThreshold = 4;
         List<Coord> circumferencePoints;
 
         double centroidX;           //The droplet centroid's X position (in pixels)
@@ -65,18 +65,19 @@ namespace ImageProcessing
         static double cmPerPixel = 1; //The user-defined distance in real units from the needle to the base
         static string unit = "px";
         double volume;
-
+        string imageName;
         bool[,] dropletMatrix;
         Bitmap dropImage;
         //=============================================================
         //=================    Class Methods    =======================
         //=============================================================
 
-        public DropletImage(Bitmap image, int index)
+        public DropletImage(Bitmap image, int index, string fileName)
         {
             //Save the given input
             realImage = image;
             imageIndex = index;
+            imageName = fileName;
             DetermineTime();
         }
 
@@ -452,7 +453,7 @@ namespace ImageProcessing
                 centroidY /= circumferencePoints.Count;
             }
 
-            Console.WriteLine("x: " + centroidX + " y: " + centroidY);
+            //Console.WriteLine("x: " + centroidX + " y: " + centroidY);
             realCentroidX = centroidX * cmPerPixel;
             realCentroidY = centroidY * cmPerPixel;
             
@@ -461,7 +462,6 @@ namespace ImageProcessing
         //Calculate Velocity change between centroid distances of this and previous image
         public void DetermineVelocity()
         {
-            //Console.WriteLine("prevCentroidX: " + prevCentroidX + " prevCentroidY: " + prevCentroidY);
             if (time != 0)
             {
                 velocityX = (realCentroidX - prevCentroidX)/ secondsPerImage;
@@ -534,13 +534,6 @@ namespace ImageProcessing
         //Show just the complete drop and nothing else
         public Bitmap GetDropImage()
         {
-            /*
-            Console.WriteLine("sec: " + time);
-            Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
-            Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
-            Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
-            Console.WriteLine("volume: " + volume);
-            */
             dropImage = new Bitmap(realImage.Width, realImage.Height);
             for (int y = 0; y < realImage.Height; y++)
             {
@@ -568,13 +561,6 @@ namespace ImageProcessing
         //show the complete drop plus needle and base
         public Bitmap GetBlackWhiteImage()
         {
-            /*
-            Console.WriteLine("sec: " + time);
-            Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
-            Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
-            Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
-            Console.WriteLine("volume: " + volume);
-            */
             blackWhiteImage = new Bitmap(realImage.Width, realImage.Height);
             //Lauded llama code to convert each pixel to black or white
             for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
@@ -593,6 +579,12 @@ namespace ImageProcessing
                     }
                 }
             }
+
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                //draw circumference points for testing
+                blackWhiteImage.SetPixel(circumPoint.xCoord, circumPoint.yCoord, Color.Black);
+            }
             //set centroid pixel to black in drop image
             blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Green);
 
@@ -602,12 +594,6 @@ namespace ImageProcessing
         //show the complete drop plus needle and base
         public Bitmap GetConvergence()
         {
-            /*
-            Console.WriteLine("sec: " + time);
-            Console.WriteLine("centX: " + realCentroidX + " centY: " + realCentroidY);
-            Console.WriteLine("velX: " + velocityX + " velY: " + velocityY);
-            Console.WriteLine("accX: " + accelerationX + " accY: " + accelerationY);
-            Console.WriteLine("volume: " + volume);*/
             //Initialize the black and white image to the real image
             blackWhiteImage = new Bitmap(realImage.Width, realImage.Height);
             //Lauded llama code to convert each pixel to black or white
@@ -783,6 +769,11 @@ namespace ImageProcessing
         {
             prevVelocityX = xVelocity;
             prevVelocityY = yVelocity;
+        }
+
+        public string GetImageName()
+        {
+            return imageName;
         }
     }
 }
