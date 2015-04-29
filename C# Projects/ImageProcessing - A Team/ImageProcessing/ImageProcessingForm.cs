@@ -111,7 +111,7 @@ namespace ImageProcessing
                     loadedImages = true;
                     enableRunButton();
                     calibrateButton.Enabled = true;
-
+                    imagesSourceTextBox.Text = selectedfolderPath;
                 }
                 else
                 {
