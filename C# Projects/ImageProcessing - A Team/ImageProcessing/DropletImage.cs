@@ -64,6 +64,7 @@ namespace ImageProcessing
         //=== Unit conversion information ===
         static double cmPerPixel = 1; //The user-defined distance in real units from the needle to the base
         static string unit = "px";
+        static int needleBottomY;     //The y value of the bottom of the needle (the needle point)
         double volume;
         string imageName;
         bool[,] dropletMatrix;
@@ -171,7 +172,7 @@ namespace ImageProcessing
         private void XDropletSweep()
         {
             //rows of dropletMatrix 
-            for (int y = 0; y < dropletMatrix.GetLength(1); y++)
+            for (int y = needleBottomY; y < dropletMatrix.GetLength(1); y++)
             {
                 //col
                 int x = 0;
@@ -254,7 +255,7 @@ namespace ImageProcessing
                 int bottomPixelCnt = 0;
 
                 //rows
-                int y = 0;
+                int y = needleBottomY;
                 //sweep from top to bottom until you run into continuous pixels that meet the threshold
                 while (y < dropletMatrix.GetLength(1) && topPixelCnt < pixelThreshold)
                 {
@@ -276,7 +277,7 @@ namespace ImageProcessing
 
                 //then sweep from bottom to top until you run into continuous pixels 
                 y = dropletMatrix.GetLength(1) - 1;
-                while (y > 0 && bottomPixelCnt < pixelThreshold)
+                while (y > needleBottomY && bottomPixelCnt < pixelThreshold)
                 {
                     //if convergence matrix is false and dropletImage is true, then thats the drop
                     if ((dropletMatrix[x, y] == true))
@@ -371,16 +372,30 @@ namespace ImageProcessing
             List<Coord> pointsToRemove = new List<Coord>();
             foreach (Coord circumPoint in circumferencePoints)
             {
-                //if yCoord in outside of the drop's presumed range, need to remove it from list of circumference points
+                //if yCoord in outside of the drop's presumed range, need to remove it from
+                //list of circumference points and the droplet matrix
                 if (!(circumPoint.yCoord >= minDropIndex && circumPoint.yCoord <= minDropIndex + maxContiguous))
                 {
                     pointsToRemove.Add(circumPoint);
+                    dropletMatrix[circumPoint.xCoord, circumPoint.yCoord] = false;
                 }
             }
             //remove row outlier points from list of circumference points
             foreach (Coord circumPoint in pointsToRemove)
             {
                 circumferencePoints.Remove(circumPoint);
+            }
+
+            //Remove outlier non-droplet pixels from the dropletMatrix
+            for (int y = 0; y < realImage.Height; y++)
+            {
+                if (!(y >= minDropIndex && y <= minDropIndex + maxContiguous))
+                {
+                    for (int x = 0; x < realImage.Width; x++)
+                    {
+                        dropletMatrix[x, y] = false;
+                    }
+                }
             }
 
             //Find max num contiguous slots in marked cols
@@ -412,11 +427,24 @@ namespace ImageProcessing
                 if (!(circumPoint.xCoord >= minDropIndex && circumPoint.xCoord <= minDropIndex + maxContiguous))
                 {
                     pointsToRemove.Add(circumPoint);
+                    dropletMatrix[circumPoint.xCoord, circumPoint.yCoord] = false;
                 }
             }
             foreach (Coord circumPoint in pointsToRemove)
             {
                 circumferencePoints.Remove(circumPoint);
+            }
+
+            //Remove outlier non-droplet pixels from the dropletMatrix
+            for (int x = 0; x < realImage.Width; x++)
+            {
+                if (!(x >= minDropIndex && x <= minDropIndex + maxContiguous))
+                {
+                    for (int y = 0; y < realImage.Height; y++)
+                    {
+                        dropletMatrix[x, y] = false;
+                    }
+                }
             }
 
         }
@@ -553,7 +581,7 @@ namespace ImageProcessing
             }
 
             //set centroid pixel to green
-            dropImage.SetPixel((int)centroidX, (int)centroidY, Color.Green);
+            dropImage.SetPixel((int)centroidX, (int)centroidY, Color.White);
             //Console.Write("x centroid: " + centroidX + " yCentroid: " + centroidY);
             return dropImage;
         }
@@ -573,9 +601,13 @@ namespace ImageProcessing
                     blackWhiteImage.SetPixel(x, y, pixelColor);
                     //Create black/white image based on greyscale changes shown in blackwhiteMatrix and
                     //filled drop
-                    if (blackWhiteMatrix[x, y] == true || dropletMatrix[x, y] == true)
+                    if (blackWhiteMatrix[x, y] == true)
                     {
                         blackWhiteImage.SetPixel(x, y, Color.Red);
+                    }
+                    if (dropletMatrix[x, y] == true)
+                    {
+                        blackWhiteImage.SetPixel(x, y, Color.DarkCyan);
                     }
                 }
             }
@@ -583,10 +615,10 @@ namespace ImageProcessing
             foreach (Coord circumPoint in circumferencePoints)
             {
                 //draw circumference points for testing
-                blackWhiteImage.SetPixel(circumPoint.xCoord, circumPoint.yCoord, Color.Black);
+                blackWhiteImage.SetPixel(circumPoint.xCoord, circumPoint.yCoord, Color.White);
             }
             //set centroid pixel to black in drop image
-            blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Green);
+            blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Red);
 
             return blackWhiteImage;
         }
@@ -687,6 +719,9 @@ namespace ImageProcessing
                 }
                 
             }
+
+            //Store the location of the needle point in the class variable
+            needleBottomY = minY;
 
             int baseToNeedleInPixels = maxY - minY;
             if (baseToNeedleInCM == -1)
