@@ -32,7 +32,7 @@ namespace ImageProcessing
         //=== Droplet information ===
 
         //Centroid variables
-        int pixelThreshold = 4;
+        int pixelThreshold = 3;
         List<Coord> circumferencePoints;
 
         double centroidX;           //The droplet centroid's X position (in pixels)

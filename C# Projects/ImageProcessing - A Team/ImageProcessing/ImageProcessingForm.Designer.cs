@@ -122,7 +122,6 @@
             this.baseNeedleHeightTextBox.Name = "baseNeedleHeightTextBox";
             this.baseNeedleHeightTextBox.Size = new System.Drawing.Size(55, 20);
             this.baseNeedleHeightTextBox.TabIndex = 6;
-            this.baseNeedleHeightTextBox.TextChanged += new System.EventHandler(this.baseNeedleHeightTextBox_TextChanged);
             // 
             // unitsLabel
             // 
@@ -210,8 +209,8 @@
             this.baseNeedleHelp.Size = new System.Drawing.Size(15, 15);
             this.baseNeedleHelp.TabIndex = 22;
             this.baseNeedleHelp.TabStop = false;
-            this.toolTip1.SetToolTip(this.baseNeedleHelp, "Enter the vertical distance between the tip of the \r\nneedle and the base directly" +
-        " below it in centimeters .");
+            this.toolTip1.SetToolTip(this.baseNeedleHelp, "OPTIONAL\r\n\r\nEnter the vertical distance between the tip of the \r\nneedle and the b" +
+        "ase directly below it in centimeters .");
             // 
             // framerateHelp
             // 
@@ -438,6 +437,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
+            this.MaximizeBox = false;
             this.Name = "ImageProcessingForm";
             this.Text = "Image Processing Tool";
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).EndInit();
