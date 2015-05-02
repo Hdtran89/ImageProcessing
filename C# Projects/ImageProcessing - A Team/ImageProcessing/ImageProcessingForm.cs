@@ -138,6 +138,23 @@ namespace ImageProcessing
 
         }
 
+        private void disableFormButtons()
+        {
+            loadButton.Enabled = false;
+            browseButton.Enabled = false;
+            calibrateButton.Enabled = false;
+            runToolStripMenuItem.Enabled = false;
+            loadToolStripMenuItem.Enabled = false;
+        }
+
+        private void enableFormButtons()
+        {
+            loadButton.Enabled = true;
+            browseButton.Enabled = true;
+            calibrateButton.Enabled = true;
+            loadToolStripMenuItem.Enabled = true;
+        }
+
         //Validate, handle baseNeedleHeight input and update baseToNeedleHeight if accepted
         private bool validateBaseNeedleHeight()
         {
@@ -198,7 +215,8 @@ namespace ImageProcessing
                 return;
             }
 
-            //Disable the Run button in the menu strip
+            //Disable the form buttons
+            disableFormButtons();
             runToolStripMenuItem.Enabled = false;
             
             //Necessary operations before processing begins
@@ -434,6 +452,9 @@ namespace ImageProcessing
                 runButton.Text = "Run";
                 runButton.Click -= this.stopButton_Click;
                 runButton.Click += this.runButton_Click;
+
+                //Enable the various form buttons
+                enableFormButtons();
             }
         }
 
@@ -452,6 +473,9 @@ namespace ImageProcessing
             runButton.Text = "Run";
             runButton.Click -= this.stopButton_Click;
             runButton.Click += this.runButton_Click;
+
+            //Enable the various form buttons
+            enableFormButtons();
         }
 
         private void enableRunButton()
