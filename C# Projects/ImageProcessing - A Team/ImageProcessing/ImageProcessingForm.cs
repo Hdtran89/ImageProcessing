@@ -22,8 +22,8 @@ namespace ImageProcessing
         Bitmap displayedImage;
         int frameRate;
         double baseToNeedleHeight = -1; //cm
-        string folderPath;
-        string newDirectory;
+        string saveDirectoryPath;
+        string loadDirectoryPath;
         AboutWindow loadingWindow = new AboutWindow();
 
         //Run button locks - does not enable until both are true
@@ -59,19 +59,8 @@ namespace ImageProcessing
 
                 if (images.Length != 0)
                 {
-                    //path of selected folder
-                    string selectedfolderPath = loadImagesDialog.SelectedPath;
-                    //path of directory of selected folder
-                    string dirName = Path.GetDirectoryName(selectedfolderPath);
-
-                    //just the name of the image folder
-                    FileInfo fInfo = new FileInfo(images[0]);
-                    string imageFolderName = fInfo.Directory.Name;
-
-                    //make new FOLDER for the processed images with same name + _processed in same location(dirName)
-                    newDirectory = dirName + "/" + imageFolderName + "_processed";
-                    if (!Directory.Exists(newDirectory)) 
-                        Directory.CreateDirectory(newDirectory); 
+                    //Save the loaded image source directory path
+                    loadDirectoryPath = loadImagesDialog.SelectedPath;
 
                     //Display loading status
                     statusLabel.Text = "Loading data...";
@@ -111,7 +100,7 @@ namespace ImageProcessing
                     loadedImages = true;
                     enableRunButton();
                     calibrateButton.Enabled = true;
-
+                    imagesSourceTextBox.Text = loadDirectoryPath;
                 }
                 else
                 {
@@ -236,8 +225,8 @@ namespace ImageProcessing
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                folderPath = saveFileDialog.FileName;
-                saveDestinationTextBox.Text = folderPath;
+                saveDirectoryPath = saveFileDialog.FileName;
+                saveDestinationTextBox.Text = saveDirectoryPath;
 
                 //Specify that the save destination has been set
                 setSaveDestination = true;
@@ -282,17 +271,9 @@ namespace ImageProcessing
 
             //Determine centroid of each image
             backgroundWorker.ReportProgress(-1);
-            
             Parallel.ForEach(dropletImages, dropletImage =>
             {
                 dropletImage.DetermineCentroid();
-                /********************COMMENT THE FOLLOWING LINES IF YOU DONT WANT TO CREATE IMAGES***/
-                //path for newImageFile = "newDirectory(originalFolderName_processed)" + originalImageName
-                string newImageFile = newDirectory + "/" + dropletImage.GetImageName();
-                CreateProcessedImageFile(newImageFile);
-                //Save the processed image to newImageFile
-                dropletImage.GetBlackWhiteImage().Save(newImageFile);
-
             });
 
             //Pass the previous image's centroid to each image
@@ -351,7 +332,7 @@ namespace ImageProcessing
 
             //Create Output object to create Excel file
             backgroundWorker.ReportProgress(-2);
-            Output output = new Output(folderPath, dropletImages.Length);
+            Output output = new Output(saveDirectoryPath, dropletImages.Length);
 
             //Pass information into output
             for (int i = 0; i < dropletImages.Length; i++)
@@ -369,14 +350,41 @@ namespace ImageProcessing
 
             //Create Excel file
             output.generateExcel();
+
+            //Create new folder for the processed images to be created
+            string dirName = Path.GetDirectoryName(loadDirectoryPath);
+            FileInfo fInfo = new FileInfo(images[0]);
+            string imageFolderName = fInfo.Directory.Name;
+            string newDirectory = dirName + "/" + imageFolderName + "_processed";
+            if (!Directory.Exists(newDirectory))
+                Directory.CreateDirectory(newDirectory);
+
+            //Save every processed image
+            Parallel.ForEach(dropletImages, dropletImage =>
+            {
+                string newImageFile = newDirectory + "/" + dropletImage.GetImageName();
+                CreateProcessedImageFile(newImageFile);
+                //Save the processed image to newImageFile
+                dropletImage.GetBlackWhiteImage().Save(newImageFile);
+
+                //Update the UI with the current progress
+                currentProgress++;
+                backgroundWorker.ReportProgress(currentProgress);
+            });
         }
 
         private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.ProgressPercentage > 0)
+            if (e.ProgressPercentage > 0 && e.ProgressPercentage <= dropletImages.Length)
             {
                 statusLabel.Text = "Processing Images: " + e.ProgressPercentage.ToString() + "/" + dropletImages.Length.ToString();
                 runProgressBar.Value = e.ProgressPercentage;
+            }
+            if (e.ProgressPercentage > dropletImages.Length)
+            {
+                int currentProgress = e.ProgressPercentage - dropletImages.Length;
+                statusLabel.Text = "Saving Processed Images: " + currentProgress.ToString() + "/" + dropletImages.Length.ToString();
+                runProgressBar.Value = currentProgress;
             }
             if (e.ProgressPercentage == -1)
             {
@@ -404,8 +412,8 @@ namespace ImageProcessing
             runProgressBar.Value = runProgressBar.Maximum;
 
             //Reset the save destination
-            folderPath = "";
-            saveDestinationTextBox.Text = folderPath;
+            saveDirectoryPath = "";
+            saveDestinationTextBox.Text = saveDirectoryPath;
             setSaveDestination = false;
             runButton.Enabled = false;
 
@@ -413,8 +421,6 @@ namespace ImageProcessing
             runButton.Text = "Run";
             runButton.Click -= this.stopButton_Click;
             runButton.Click += this.runButton_Click;
-
-            
         }
 
         private void enableRunButton()
