@@ -122,7 +122,6 @@
             this.baseNeedleHeightTextBox.Name = "baseNeedleHeightTextBox";
             this.baseNeedleHeightTextBox.Size = new System.Drawing.Size(55, 20);
             this.baseNeedleHeightTextBox.TabIndex = 6;
-            this.baseNeedleHeightTextBox.TextChanged += new System.EventHandler(this.baseNeedleHeightTextBox_TextChanged);
             // 
             // unitsLabel
             // 
@@ -438,6 +437,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
+            this.MaximizeBox = false;
             this.Name = "ImageProcessingForm";
             this.Text = "Image Processing Tool";
             ((System.ComponentModel.ISupportInitialize)(this.currentImagePictureBox)).EndInit();

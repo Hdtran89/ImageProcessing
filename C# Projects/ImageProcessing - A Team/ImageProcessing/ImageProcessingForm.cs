@@ -139,7 +139,7 @@ namespace ImageProcessing
         }
 
         //Validate, handle baseNeedleHeight input and update baseToNeedleHeight if accepted
-        private void baseNeedleHeightTextBox_TextChanged(object sender, EventArgs e)
+        private bool validateBaseNeedleHeight()
         {
             try
             {
@@ -148,15 +148,24 @@ namespace ImageProcessing
                     if (Double.Parse(baseNeedleHeightTextBox.Text) > 0)
                         baseToNeedleHeight = Double.Parse(baseNeedleHeightTextBox.Text);
                     else
+                    {
                         MessageBox.Show("Please enter a positive number for the base/needle height.",
                             "Negative Base/Needle Height", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+                else
+                {
+                    baseToNeedleHeight = -1;
                 }
             }
             catch
             {
                 MessageBox.Show("Invalid height input. Please make sure you input a positive numeric value.",
                     "Invalid Base/Needle Height", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
+            return true;
         }
         private void CreateConvergenceMatrix()
         {
@@ -183,6 +192,12 @@ namespace ImageProcessing
 
         private void runButton_Click(object sender, EventArgs e)
         {
+            //Validate base/needle height
+            if (validateBaseNeedleHeight() == false)
+            {
+                return;
+            }
+
             //Disable the Run button in the menu strip
             runToolStripMenuItem.Enabled = false;
             
@@ -351,6 +366,14 @@ namespace ImageProcessing
             //Create Excel file
             output.generateExcel();
 
+            //Check if user cancelled processing
+            if (backgroundWorker.CancellationPending)
+            {
+                e.Cancel = true;
+                backgroundWorker.ReportProgress(0);
+                return;
+            }
+
             //Create new folder for the processed images to be created
             string dirName = Path.GetDirectoryName(loadDirectoryPath);
             FileInfo fInfo = new FileInfo(images[0]);
@@ -370,6 +393,14 @@ namespace ImageProcessing
                 //Update the UI with the current progress
                 currentProgress++;
                 backgroundWorker.ReportProgress(currentProgress);
+
+                //Check if user cancelled processing
+                if (backgroundWorker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    backgroundWorker.ReportProgress(0);
+                    return;
+                }
             });
         }
 
