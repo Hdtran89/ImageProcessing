@@ -79,9 +79,10 @@ namespace ImageProcessing
                 Excel.Range formatRange;
                 formatRange = xlWSData.get_Range("A1");
                 formatRange.EntireRow.Font.Bold = true;
+                formatRange.EntireColumn.ColumnWidth = 7;
 
                 //Autofit each cell in data worksheet based on data
-                formatRange = xlWSData.get_Range("A:J");
+                formatRange = xlWSData.get_Range("B:J");
                 formatRange.Columns.AutoFit();
 
                 for (int i = 0; i < dropletImages.Length; i++)
