@@ -128,7 +128,7 @@ namespace ImageProcessing
             dropletImages[4].DetermineCentroid();
 
             //Set displayed image to the fourth in the list and adjust according to new calibration value
-            displayedImage = dropletImages[4].GetBlackWhiteImage();
+            displayedImage = dropletImages[4].GetColorImage();
             
             //Set picturebox to black and white image
             //currentImagePictureBox.Image = null;
