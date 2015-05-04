@@ -131,7 +131,7 @@ in red. </value>
   <data name="baseNeedleHelp.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAB9ElEQVQ4T1WT
+        vgAADr4B6kKxwAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAB9ElEQVQ4T1WT
         XW5SURSFb9+cgsNyBkyhQ2AEhxbagtaKNv6V2KQ81FhDomiTFnmwaWoNFnzQB8AGLZbQhpbl+riAQLJy
         zz5nr/2z9iYKIcxioVqt3m02m/fOGpfJz8fXqXrjbxKbe95n/aeHUql05/TrReLNJ1VCQd2wqWHIS2Hd
         38fqvj9QpfbtVwK/OTIXrVZnMRTVN0nhiQFxw8gaS0aQNgrqt1vni5MAkBfIGHZMfGqnF9LynnR5pdFv
@@ -146,7 +146,7 @@ in red. </value>
   <data name="framerateHelp.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAB9ElEQVQ4T1WT
+        vgAADr4B6kKxwAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAB9ElEQVQ4T1WT
         XW5SURSFb9+cgsNyBkyhQ2AEhxbagtaKNv6V2KQ81FhDomiTFnmwaWoNFnzQB8AGLZbQhpbl+riAQLJy
         zz5nr/2z9iYKIcxioVqt3m02m/fOGpfJz8fXqXrjbxKbe95n/aeHUql05/TrReLNJ1VCQd2wqWHIS2Hd
         38fqvj9QpfbtVwK/OTIXrVZnMRTVN0nhiQFxw8gaS0aQNgrqt1vni5MAkBfIGHZMfGqnF9LynnR5pdFv
@@ -161,7 +161,7 @@ in red. </value>
   <data name="calibrationHelp.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wAAADsABataJCQAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAB9ElEQVQ4T1WT
+        vgAADr4B6kKxwAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAB9ElEQVQ4T1WT
         XW5SURSFb9+cgsNyBkyhQ2AEhxbagtaKNv6V2KQ81FhDomiTFnmwaWoNFnzQB8AGLZbQhpbl+riAQLJy
         zz5nr/2z9iYKIcxioVqt3m02m/fOGpfJz8fXqXrjbxKbe95n/aeHUql05/TrReLNJ1VCQd2wqWHIS2Hd
         38fqvj9QpfbtVwK/OTIXrVZnMRTVN0nhiQFxw8gaS0aQNgrqt1vni5MAkBfIGHZMfGqnF9LynnR5pdFv
@@ -174,13 +174,13 @@ in red. </value>
 </value>
   </data>
   <data name="calibrationHelp.ToolTip" xml:space="preserve">
-    <value>Only adjust the Black/White Calibration if the Tool's determination
-of the base, needle, and droplet location on the displayed image is inadequate.
+    <value>Adjust the Black/White Calibration value and click "Calibrate" until the droplet
+is highlighted as blue and the base and needle are highlighted as red.
 
-Increase the value to identify more pixels as relevant.
-Decrease the value to identify less pixels as relevant. 
+Increase the value to identify more pixels as part of the experiment.
+Decrease the value to identify less pixels as part of the experiment.
 
-Then Click "Calibrate" and wait for the image to be reprocessed. 
+Recalibration may take a few seconds.
 </value>
   </data>
   <metadata name="menuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
