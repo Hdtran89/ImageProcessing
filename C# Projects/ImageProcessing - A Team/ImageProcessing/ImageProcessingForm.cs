@@ -91,7 +91,7 @@ namespace ImageProcessing
 
                     dropletImages[4].PreprocessImage();
                     dropletImages[4].DetermineCentroid();
-                    displayedImage = dropletImages[4].GetBlackWhiteImage();
+                    displayedImage = dropletImages[4].GetColorImage();
 
                     //Set picturebox to black and white image
                     currentImagePictureBox.Image = displayedImage;

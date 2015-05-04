@@ -590,6 +590,32 @@ namespace ImageProcessing
         public Bitmap GetBlackWhiteImage()
         {
             blackWhiteImage = new Bitmap(realImage.Width, realImage.Height);
+
+            //Lauded llama code to convert each pixel to black or white
+            for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
+            {
+                for (int x = 0; x < realImage.Width; x++)                       //columuns (xpos) in bitmap
+                {
+                    //Create black/white image based on greyscale changes shown in blackwhiteMatrix and
+                    //filled drop
+                    if (blackWhiteMatrix[x, y] == true || dropletMatrix[x, y] == true)
+                    {
+                        blackWhiteImage.SetPixel(x, y, Color.Black);
+                    }
+                    else
+                    {
+                        blackWhiteImage.SetPixel(x, y, Color.White);
+                    }
+                }
+            }
+
+            return blackWhiteImage;
+        }
+
+        //show the complete drop plus needle and base
+        public Bitmap GetColorImage()
+        {
+            Bitmap colorImage = new Bitmap(realImage.Width, realImage.Height);
             //Lauded llama code to convert each pixel to black or white
             for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
             {
@@ -598,16 +624,16 @@ namespace ImageProcessing
                     // Get the color of a pixel within realImage.
                     Color pixelColor = realImage.GetPixel(x, y);
                     //Color in that pixel in the new blackWHiteImage
-                    blackWhiteImage.SetPixel(x, y, pixelColor);
+                    colorImage.SetPixel(x, y, pixelColor);
                     //Create black/white image based on greyscale changes shown in blackwhiteMatrix and
                     //filled drop
                     if (blackWhiteMatrix[x, y] == true)
                     {
-                        blackWhiteImage.SetPixel(x, y, Color.Red);
+                        colorImage.SetPixel(x, y, Color.Red);
                     }
                     if (dropletMatrix[x, y] == true)
                     {
-                        blackWhiteImage.SetPixel(x, y, Color.DarkCyan);
+                        colorImage.SetPixel(x, y, Color.DarkCyan);
                     }
                 }
             }
@@ -615,12 +641,12 @@ namespace ImageProcessing
             foreach (Coord circumPoint in circumferencePoints)
             {
                 //draw circumference points for testing
-                blackWhiteImage.SetPixel(circumPoint.xCoord, circumPoint.yCoord, Color.White);
+                colorImage.SetPixel(circumPoint.xCoord, circumPoint.yCoord, Color.White);
             }
             //set centroid pixel to black in drop image
-            blackWhiteImage.SetPixel((int)centroidX, (int)centroidY, Color.Red);
+            colorImage.SetPixel((int)centroidX, (int)centroidY, Color.Red);
 
-            return blackWhiteImage;
+            return colorImage;
         }
 
         //show the complete drop plus needle and base

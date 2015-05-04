@@ -149,7 +149,7 @@
             this.frameRateNumericUpDown.Size = new System.Drawing.Size(77, 20);
             this.frameRateNumericUpDown.TabIndex = 5;
             this.frameRateNumericUpDown.Value = new decimal(new int[] {
-            1,
+            250,
             0,
             0,
             0});
