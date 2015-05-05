@@ -57,7 +57,7 @@ namespace ImageProcessing
                 bmpImages.CopyTo(images, tifImages.Length);
                 runProgressBar.Maximum = images.Length;
 
-                if (images.Length != 0)
+                if (images.Length >= 5)
                 {
                     //Save the loaded image source directory path
                     loadDirectoryPath = loadImagesDialog.SelectedPath;
@@ -226,7 +226,15 @@ namespace ImageProcessing
             frameRate = (int)frameRateNumericUpDown.Value;
             DropletImage.ConvertFRtoSecPerImage(frameRate);
 
-            //Begin Image Processing
+            //Create a new BackgroundWorker to handle processing
+            backgroundWorker = new BackgroundWorker();
+            backgroundWorker.DoWork += backgroundWorker_DoWork;
+            backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.WorkerSupportsCancellation = true;
+
+            //Begin image processing
             backgroundWorker.RunWorkerAsync();
 
             //Change Run button into Stop button
