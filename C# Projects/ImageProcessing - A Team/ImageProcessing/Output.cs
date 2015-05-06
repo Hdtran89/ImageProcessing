@@ -34,10 +34,8 @@ namespace ImageProcessing
             Process[] processlist = Process.GetProcesses();
             foreach (Process process in processlist)
             {
-                Console.WriteLine(process.ProcessName);
                 if (process.ProcessName == "EXCEL")
                 {
-                    Console.WriteLine("find execl");
                     process.Kill();
                 }
             }

@@ -25,6 +25,8 @@ namespace ImageProcessing
 
         //=== Image information ===
         int imageIndex;                     //The index of this image in the data set
+        int imageWidth;
+        int imageHeight;
         static int greyScaleThreshold; //The value used to determine if a pixel will be white or black
         bool[,] blackWhiteMatrix;           //Matrix describing whether or not each pixel is black
         static bool[,] convergenceMatrix;   //Location of the base/needle in every image
@@ -79,19 +81,23 @@ namespace ImageProcessing
             realImage = image;
             imageIndex = index;
             imageName = fileName;
+            imageHeight = realImage.Height;
+            imageWidth = realImage.Width;
             DetermineTime();
         }
 
         private void CreateBlackWhiteMatrix()
         {
             //Initialize black/white matrix
-            blackWhiteMatrix = new bool[realImage.Width, realImage.Height];
+            blackWhiteMatrix = new bool[imageWidth, imageHeight];
             //Loop through each pixel in the image
-            for (int y = 0; y < realImage.Height; y++)
+            for (int y = 0; y < imageHeight; y++)
             {
-                for (int x = 0; x < realImage.Width; x++)
+                for (int x = 0; x < imageWidth; x++)
                 {
-                    Color originalcolor = realImage.GetPixel(x, y);             //Grayscaling the pixel in question
+                    Color originalcolor;
+                    lock(realImage)
+                        originalcolor = realImage.GetPixel(x, y);             //Grayscaling the pixel in question
                     int grayscale = (int)((originalcolor.R * .3) + (originalcolor.G * .59) + (originalcolor.B * .11));
 
                     //Create black/white image and save results in black/white matrix
@@ -110,11 +116,11 @@ namespace ImageProcessing
         //Initialize convergence matrix to be all true.
         public void InitializeConvergenceMatrix()
         {
-            convergenceMatrix = new bool[realImage.Width, realImage.Height];
+            convergenceMatrix = new bool[imageWidth, imageHeight];
             //Compare this matrix to the convergence matrix
-            for (int y = 0; y < realImage.Height; y++)
+            for (int y = 0; y < imageHeight; y++)
             {
-                for (int x = 0; x < realImage.Width; x++)
+                for (int x = 0; x < imageWidth; x++)
                 {
                     convergenceMatrix[x, y] = true;
                 }
@@ -128,9 +134,9 @@ namespace ImageProcessing
             CreateBlackWhiteMatrix();
 
             //Compare this matrix to the convergence matrix
-            for (int y = 0; y < realImage.Height; y++)
+            for (int y = 0; y < imageHeight; y++)
             {
-                for (int x = 0; x < realImage.Width; x++)
+                for (int x = 0; x < imageWidth; x++)
                 {
                     //Adjust the convergence matrix if there are any differences
                     if (!(convergenceMatrix[x, y] == true && blackWhiteMatrix[x, y] == true))
@@ -147,7 +153,7 @@ namespace ImageProcessing
         //between this image's black/white matrix and the convergence matrix
         private void IsolateDroplet()
         {
-            dropletMatrix = new bool[realImage.Width, realImage.Height];
+            dropletMatrix = new bool[imageWidth, imageHeight];
 
             //rows of convergence matrix
             for (int y = 0; y < convergenceMatrix.GetLength(1); y++)
@@ -332,9 +338,9 @@ namespace ImageProcessing
         //that do not actually comprise the droplet 
         private void RemoveOutliers()
         {
-            bool[] markedRows = new bool[realImage.Height]; //array to hold all rows in image that may
+            bool[] markedRows = new bool[imageHeight]; //array to hold all rows in image that may
                                                             //hold a circumference point or outlier
-            bool[] markedCols = new bool[realImage.Width]; //array to hold all columns in image that may
+            bool[] markedCols = new bool[imageWidth]; //array to hold all columns in image that may
                                                             //hold a circumference point or outlier
 
             foreach(Coord circumPoint in circumferencePoints)
@@ -350,7 +356,7 @@ namespace ImageProcessing
             int minDropIndex = -1;
             int maxContiguous = 0;
             int currentCount = 0;
-            for (int i = 0; i < realImage.Height; i++)
+            for (int i = 0; i < imageHeight; i++)
             {
                 if (markedRows[i] == true)
                 {
@@ -387,11 +393,11 @@ namespace ImageProcessing
             }
 
             //Remove outlier non-droplet pixels from the dropletMatrix
-            for (int y = 0; y < realImage.Height; y++)
+            for (int y = 0; y < imageHeight; y++)
             {
                 if (!(y >= minDropIndex && y <= minDropIndex + maxContiguous))
                 {
-                    for (int x = 0; x < realImage.Width; x++)
+                    for (int x = 0; x < imageWidth; x++)
                     {
                         dropletMatrix[x, y] = false;
                     }
@@ -402,7 +408,7 @@ namespace ImageProcessing
             minDropIndex = -1;
             maxContiguous = 0;
             currentCount = 0;
-            for (int i = 0; i < realImage.Width; i++)
+            for (int i = 0; i < imageWidth; i++)
             {
                 if (markedCols[i] == true)
                 {
@@ -436,11 +442,11 @@ namespace ImageProcessing
             }
 
             //Remove outlier non-droplet pixels from the dropletMatrix
-            for (int x = 0; x < realImage.Width; x++)
+            for (int x = 0; x < imageWidth; x++)
             {
                 if (!(x >= minDropIndex && x <= minDropIndex + maxContiguous))
                 {
-                    for (int y = 0; y < realImage.Height; y++)
+                    for (int y = 0; y < imageHeight; y++)
                     {
                         dropletMatrix[x, y] = false;
                     }
@@ -525,11 +531,11 @@ namespace ImageProcessing
         public void DetermineVolume()
         {
             //initialize min and max
-            int minX = realImage.Width; /*represents left most circumference point - 
+            int minX = imageWidth; /*represents left most circumference point - 
                                          *must initialize to right most point of image to start */
             int maxX = 0;               /*represents right most circumference point - 
                                          *must initialize to left most point of image to start */
-            int minY = realImage.Height; /*represents top most circumference point - 
+            int minY = imageHeight; /*represents top most circumference point - 
                                          *must initialize to bottom most point of image to start */
             int maxY = 0;               /*represents bottom most circumference point - 
                                          *must initialize to top most point of image to start */
@@ -562,10 +568,10 @@ namespace ImageProcessing
         //Show just the complete drop and nothing else
         public Bitmap GetDropImage()
         {
-            dropImage = new Bitmap(realImage.Width, realImage.Height);
-            for (int y = 0; y < realImage.Height; y++)
+            dropImage = new Bitmap(imageWidth, imageHeight);
+            for (int y = 0; y < imageHeight; y++)
             {
-                for (int x = 0; x < realImage.Width; x++)
+                for (int x = 0; x < imageWidth; x++)
                 {
                     if (dropletMatrix[x, y] == true)
                     {
@@ -589,12 +595,12 @@ namespace ImageProcessing
         //show the complete drop plus needle and base
         public Bitmap GetBlackWhiteImage()
         {
-            blackWhiteImage = new Bitmap(realImage.Width, realImage.Height);
+            blackWhiteImage = new Bitmap(imageWidth, imageHeight);
 
             //Lauded llama code to convert each pixel to black or white
-            for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
+            for (int y = 0; y < imageHeight; y++)                          //rows (ypos) in bitmap
             {
-                for (int x = 0; x < realImage.Width; x++)                       //columuns (xpos) in bitmap
+                for (int x = 0; x < imageWidth; x++)                       //columuns (xpos) in bitmap
                 {
                     //Create black/white image based on greyscale changes shown in blackwhiteMatrix and
                     //filled drop
@@ -615,11 +621,11 @@ namespace ImageProcessing
         //show the complete drop plus needle and base
         public Bitmap GetColorImage()
         {
-            Bitmap colorImage = new Bitmap(realImage.Width, realImage.Height);
+            Bitmap colorImage = new Bitmap(imageWidth, imageHeight);
             //Lauded llama code to convert each pixel to black or white
-            for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
+            for (int y = 0; y < imageHeight; y++)                          //rows (ypos) in bitmap
             {
-                for (int x = 0; x < realImage.Width; x++)                       //columuns (xpos) in bitmap
+                for (int x = 0; x < imageWidth; x++)                       //columuns (xpos) in bitmap
                 {
                     // Get the color of a pixel within realImage.
                     Color pixelColor = realImage.GetPixel(x, y);
@@ -653,11 +659,11 @@ namespace ImageProcessing
         public Bitmap GetConvergence()
         {
             //Initialize the black and white image to the real image
-            blackWhiteImage = new Bitmap(realImage.Width, realImage.Height);
+            blackWhiteImage = new Bitmap(imageWidth, imageHeight);
             //Lauded llama code to convert each pixel to black or white
-            for (int y = 0; y < realImage.Height; y++)                          //rows (ypos) in bitmap
+            for (int y = 0; y < imageHeight; y++)                          //rows (ypos) in bitmap
             {
-                for (int x = 0; x < realImage.Width; x++)                       //columuns (xpos) in bitmap
+                for (int x = 0; x < imageWidth; x++)                       //columuns (xpos) in bitmap
                 {
                     // Get the color of a pixel within realImage.
                     Color pixelColor = realImage.GetPixel(x, y);
