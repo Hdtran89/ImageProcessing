@@ -227,12 +227,13 @@ namespace ImageProcessing
             DropletImage.ConvertFRtoSecPerImage(frameRate);
 
             //Create a new BackgroundWorker to handle processing
-            backgroundWorker = new BackgroundWorker();
+            /*backgroundWorker = new BackgroundWorker();
             backgroundWorker.DoWork += backgroundWorker_DoWork;
             backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
             backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.WorkerSupportsCancellation = true;
+             * */
 
             //Begin image processing
             backgroundWorker.RunWorkerAsync();
@@ -245,7 +246,12 @@ namespace ImageProcessing
 
         private void stopButton_Click(object sender, EventArgs e)
         {
-            backgroundWorker.CancelAsync();
+            if (backgroundWorker.IsBusy)
+            {
+                runButton.Enabled = false;
+                statusLabel.Text = "Canceling...";
+                backgroundWorker.CancelAsync();
+            }
         }
 		
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -463,14 +469,6 @@ namespace ImageProcessing
             {
                 statusLabel.Text = "Stopped Processing";
                 runProgressBar.Value = 0;
-
-                //Change Stop button back into Run button
-                runButton.Text = "Run";
-                runButton.Click -= this.stopButton_Click;
-                runButton.Click += this.runButton_Click;
-
-                //Enable the various form buttons
-                enableFormButtons();
             }
         }
 
