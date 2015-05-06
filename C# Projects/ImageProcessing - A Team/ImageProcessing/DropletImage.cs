@@ -95,7 +95,9 @@ namespace ImageProcessing
             {
                 for (int x = 0; x < imageWidth; x++)
                 {
-                    Color originalcolor = realImage.GetPixel(x, y);             //Grayscaling the pixel in question
+                    Color originalcolor;
+                    lock(realImage)
+                        originalcolor = realImage.GetPixel(x, y);             //Grayscaling the pixel in question
                     int grayscale = (int)((originalcolor.R * .3) + (originalcolor.G * .59) + (originalcolor.B * .11));
 
                     //Create black/white image and save results in black/white matrix

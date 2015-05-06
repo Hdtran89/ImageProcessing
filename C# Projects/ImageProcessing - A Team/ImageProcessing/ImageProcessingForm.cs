@@ -292,26 +292,35 @@ namespace ImageProcessing
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            BackgroundWorker worker = sender as BackgroundWorker;
+
             int currentProgress = 0;
-            Parallel.ForEach(dropletImages, dropletImage =>
+            Parallel.ForEach(dropletImages, (dropletImage, state) =>
             {
                 dropletImage.PreprocessImage();
 
                 //Update progress bar
                 currentProgress++;
-                backgroundWorker.ReportProgress(currentProgress);
+                worker.ReportProgress(currentProgress);
 
                 //Check if user cancelled processing
-                if (backgroundWorker.CancellationPending)
+                if (worker.CancellationPending || e.Cancel)
                 {
                     e.Cancel = true;
-                    backgroundWorker.ReportProgress(0);
-                    return;
+                    state.Break();
                 }
             });
 
+            //Check if user cancelled processing
+            if (worker.CancellationPending || e.Cancel)
+            {
+                e.Cancel = true;
+                worker.ReportProgress(0);
+                return;
+            }
+
             //Determine centroid of each image
-            backgroundWorker.ReportProgress(-1);
+            worker.ReportProgress(-1);
             Parallel.ForEach(dropletImages, dropletImage =>
             {
                 dropletImage.DetermineCentroid();
@@ -324,10 +333,10 @@ namespace ImageProcessing
             }
 
             //Check if user cancelled processing
-            if (backgroundWorker.CancellationPending)
+            if (worker.CancellationPending)
             {
                 e.Cancel = true;
-                backgroundWorker.ReportProgress(0);
+                worker.ReportProgress(0);
                 return;
             }
 
@@ -344,10 +353,10 @@ namespace ImageProcessing
             }
 
             //Check if user cancelled processing
-            if (backgroundWorker.CancellationPending)
+            if (worker.CancellationPending)
             {
                 e.Cancel = true;
-                backgroundWorker.ReportProgress(0);
+                worker.ReportProgress(0);
                 return;
             }
 
@@ -364,15 +373,15 @@ namespace ImageProcessing
             });
 
             //Check if user cancelled processing
-            if (backgroundWorker.CancellationPending)
+            if (worker.CancellationPending)
             {
                 e.Cancel = true;
-                backgroundWorker.ReportProgress(0);
+                worker.ReportProgress(0);
                 return;
             }
 
             //Create Output object to create Excel file
-            backgroundWorker.ReportProgress(-2);
+            worker.ReportProgress(-2);
             Output output = new Output(saveDirectoryPath, dropletImages.Length);
 
             //Pass information into output
@@ -382,10 +391,10 @@ namespace ImageProcessing
             }
 
             //Check if user cancelled processing
-            if (backgroundWorker.CancellationPending)
+            if (worker.CancellationPending || e.Cancel)
             {
                 e.Cancel = true;
-                backgroundWorker.ReportProgress(0);
+                worker.ReportProgress(0);
                 return;
             }
 
@@ -393,10 +402,10 @@ namespace ImageProcessing
             output.generateExcel();
 
             //Check if user cancelled processing
-            if (backgroundWorker.CancellationPending)
+            if (worker.CancellationPending)
             {
                 e.Cancel = true;
-                backgroundWorker.ReportProgress(0);
+                worker.ReportProgress(0);
                 return;
             }
 
@@ -409,7 +418,7 @@ namespace ImageProcessing
                 Directory.CreateDirectory(newDirectory);
 
             //Save every processed image
-            Parallel.ForEach(dropletImages, dropletImage =>
+            Parallel.ForEach(dropletImages, (dropletImage, state) =>
             {
                 string newImageFile = newDirectory + "/" + dropletImage.GetImageName();
                 CreateProcessedImageFile(newImageFile);
@@ -418,14 +427,13 @@ namespace ImageProcessing
 
                 //Update the UI with the current progress
                 currentProgress++;
-                backgroundWorker.ReportProgress(currentProgress);
+                worker.ReportProgress(currentProgress);
 
                 //Check if user cancelled processing
-                if (backgroundWorker.CancellationPending)
+                if (worker.CancellationPending || e.Cancel)
                 {
                     e.Cancel = true;
-                    backgroundWorker.ReportProgress(0);
-                    return;
+                    state.Break();
                 }
             });
         }
@@ -468,8 +476,24 @@ namespace ImageProcessing
 
         private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            statusLabel.Text = "Processing Complete!";
-            runProgressBar.Value = runProgressBar.Maximum;
+            //Display proper status label
+            if (e.Cancelled)
+            {
+                statusLabel.Text = "Stopped Processing";
+                runProgressBar.Value = 0;
+            }
+            else
+            {
+                statusLabel.Text = "Processing Complete!";
+                runProgressBar.Value = runProgressBar.Maximum;
+            }
+
+            //Display any errors
+            if (e.Error != null)
+            {
+                MessageBox.Show(e.Error.Message);
+                return;
+            }
 
             //Reset the save destination
             saveDirectoryPath = "";
