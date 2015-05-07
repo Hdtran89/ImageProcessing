@@ -6,6 +6,7 @@ The cd contains all formal documents written throughout the development life cyc
 CD organization is as follows: 
     A Team Documents Folder: (listed by approximate stage order)
         Diagrams & Screenshots Folder
+        Email Communications Folder
         Initial Observations by James
         Requirements 2015 (very very first draft)
         Requirements 2015 First draft (marked)
