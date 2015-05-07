@@ -1,7 +1,7 @@
 Image Processing Version 2.0 README
 By: The A TeAm
 ================
-The cd contains all formal documents written throughout the development life cycle, as well as minutes and the interim and final presentations, in addition to the code and project itself.   
+The final CD contains all formal documents written throughout the development life cycle, as well as minutes and the interim and final presentations, in addition to the code and project itself.   
   
 CD organization is as follows: 
 ***
@@ -31,6 +31,8 @@ A Team Documents Folder: (listed by approximate stage order)
 * Final Report 2015  
 * Software Engineering Minutes
 * ObjectiveGradingSheet-2015  
+ 
+
 ImageProcessing - A Team (VS project/code)  
 Image Processing Tool Version 2.0 (Application)  
 README.md  
