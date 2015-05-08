@@ -314,7 +314,7 @@ namespace ImageProcessing
             }
         }
         //eliminates white center in drop by finding circumference of drop and filling in between
-        private void FillDroplet()
+        private void FindCircumferencePoints()
         {
             circumferencePoints = new List<Coord>();
             XDropletSweep();
@@ -458,6 +458,111 @@ namespace ImageProcessing
             }
         }
 
+        //Mark the spaces between circumference points as part of the droplet.
+        //This removes the glare in the center of the droplet.
+        private void FillDroplet()
+        {
+            //Determine domain of circumference points
+            int minX = Int32.MaxValue;
+            int maxX = -1;
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                //Check for a new minimum value
+                if (circumPoint.xCoord < minX)
+                {
+                    minX = circumPoint.xCoord;
+                }
+                //Check for a new maximum value
+                if (circumPoint.xCoord > maxX)
+                {
+                    maxX = circumPoint.xCoord;
+                }
+            }
+
+            //Save the Y value of the first circumference point found in each column.
+            //When the second point is found (assuming two circumference points per column),
+            //fill out the droplet matrix between the two points.
+            int domainLength = maxX - minX;
+            int[] firstPointsInColumn = new int[domainLength + 1]; //Holds Y coordinate of the first point found in each col
+            //Initialize Y coordinates to -1 which means no point found in that column yet
+            for (int i = 0; i <= domainLength; i++)
+            {
+                firstPointsInColumn[i] = -1;
+            }
+
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                //Adjust the X coordinate to its position in the domain
+                int adjustedX = circumPoint.xCoord - minX;
+
+                //Check if this is the first point found in the column
+                if (firstPointsInColumn[adjustedX] == -1)
+                {
+                    firstPointsInColumn[adjustedX] = circumPoint.yCoord;
+                }
+                //Else this is not the first point in this column. Fill in the points in between.
+                else
+                {
+                    //Determine the smaller and larger Y coordinates
+                    int smallerCoord = firstPointsInColumn[adjustedX] < circumPoint.yCoord ? firstPointsInColumn[adjustedX] : circumPoint.yCoord;
+                    int largerCoord = firstPointsInColumn[adjustedX] > circumPoint.yCoord ? firstPointsInColumn[adjustedX] : circumPoint.yCoord;
+                }
+            }
+
+            //Determine range of circumference points
+            int minY = Int32.MaxValue;
+            int maxY = -1;
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                //Check for a new minimum value
+                if (circumPoint.yCoord < minY)
+                {
+                    minY = circumPoint.yCoord;
+                }
+                //Check for a new maximum value
+                if (circumPoint.yCoord > maxY)
+                {
+                    maxY = circumPoint.yCoord;
+                }
+            }
+
+            //Save the Y value of the first circumference point found in each row.
+            //When the second point is found (assuming two circumference points per row),
+            //fill out the droplet matrix between the two points.
+            int rangeLength = maxY - minY;
+            int[] firstPointsInRow = new int[rangeLength + 1]; //Holds X coordinate of the first point found in each row
+            //Initialize X coordinates to -1 which means no point found in that row yet
+            for (int i = 0; i <= rangeLength; i++)
+            {
+                firstPointsInRow[i] = -1;
+            }
+
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                //Adjust the X coordinate to its position in the range
+                int adjustedY = circumPoint.yCoord - minY;
+
+                //Check if this is the first point found in the row
+                if (firstPointsInRow[adjustedY] == -1)
+                {
+                    firstPointsInRow[adjustedY] = circumPoint.xCoord;
+                }
+                //Else this is not the first point in this row. Fill in the points in between.
+                else
+                {
+                    //Determine the smaller and larger X coordinates
+                    int smallerCoord = firstPointsInRow[adjustedY] < circumPoint.xCoord ? firstPointsInRow[adjustedY] : circumPoint.xCoord;
+                    int largerCoord = firstPointsInRow[adjustedY] > circumPoint.xCoord ? firstPointsInRow[adjustedY] : circumPoint.xCoord;
+
+                    //Fill between the X coordinates
+                    for (int i = smallerCoord; i <= largerCoord; i++)
+                    {
+                        dropletMatrix[i, circumPoint.yCoord] = true;
+                    }
+                }
+            }
+        }
+
         public void PreprocessImage()
         {
             //Determine the time the image occured
@@ -467,7 +572,7 @@ namespace ImageProcessing
             // initialize a dropletMatrix and fill it based on difference between blackWhiteMatrix and convergence
             IsolateDroplet(); 
             //finding circumferencePoints of drop by looking at dropletMatrix (circumferencePoints used to calc centroid)
-            FillDroplet(); 
+            FindCircumferencePoints(); 
             //remove added circumferencePoints that actually do not comprise the droplets circumference
             RemoveOutliers(); 
         }
