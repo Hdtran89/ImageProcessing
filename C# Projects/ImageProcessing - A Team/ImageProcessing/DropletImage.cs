@@ -66,7 +66,6 @@ namespace ImageProcessing
         //=== Unit conversion information ===
         static double cmPerPixel = 1; //The user-defined distance in real units from the needle to the base
         static string unit = "px";
-        static int needleBottomY;     //The y value of the bottom of the needle (the needle point)
         double volume;
         string imageName;
         bool[,] dropletMatrix;
@@ -178,7 +177,7 @@ namespace ImageProcessing
         private void XDropletSweep()
         {
             //rows of dropletMatrix 
-            for (int y = needleBottomY; y < dropletMatrix.GetLength(1); y++)
+            for (int y = 0; y < dropletMatrix.GetLength(1); y++)
             {
                 //col
                 int x = 0;
@@ -261,7 +260,7 @@ namespace ImageProcessing
                 int bottomPixelCnt = 0;
 
                 //rows
-                int y = needleBottomY;
+                int y = 0;
                 //sweep from top to bottom until you run into continuous pixels that meet the threshold
                 while (y < dropletMatrix.GetLength(1) && topPixelCnt < pixelThreshold)
                 {
@@ -283,7 +282,7 @@ namespace ImageProcessing
 
                 //then sweep from bottom to top until you run into continuous pixels 
                 y = dropletMatrix.GetLength(1) - 1;
-                while (y > needleBottomY && bottomPixelCnt < pixelThreshold)
+                while (y > 0 && bottomPixelCnt < pixelThreshold)
                 {
                     //if convergence matrix is false and dropletImage is true, then thats the drop
                     if ((dropletMatrix[x, y] == true))
@@ -343,13 +342,11 @@ namespace ImageProcessing
             bool[] markedCols = new bool[imageWidth]; //array to hold all columns in image that may
                                                             //hold a circumference point or outlier
 
-            foreach(Coord circumPoint in circumferencePoints)
+            //Find max num contiguous slots in marked rows
+            foreach (Coord circumPoint in circumferencePoints)
             {
                 //Mark all rows
                 markedRows[circumPoint.yCoord] = true;
-
-                //Mark all cols
-                markedCols[circumPoint.xCoord] = true;
             }
 
             //Find max num contiguous slots in marked rows
@@ -383,13 +380,13 @@ namespace ImageProcessing
                 if (!(circumPoint.yCoord >= minDropIndex && circumPoint.yCoord <= minDropIndex + maxContiguous))
                 {
                     pointsToRemove.Add(circumPoint);
-                    dropletMatrix[circumPoint.xCoord, circumPoint.yCoord] = false;
                 }
             }
             //remove row outlier points from list of circumference points
             foreach (Coord circumPoint in pointsToRemove)
             {
                 circumferencePoints.Remove(circumPoint);
+                dropletMatrix[circumPoint.xCoord, circumPoint.yCoord] = false;
             }
 
             //Remove outlier non-droplet pixels from the dropletMatrix
@@ -402,6 +399,13 @@ namespace ImageProcessing
                         dropletMatrix[x, y] = false;
                     }
                 }
+            }
+
+            //Find max num contiguous slots in marked cols
+            foreach (Coord circumPoint in circumferencePoints)
+            {
+                //Mark all cols
+                markedCols[circumPoint.xCoord] = true;
             }
 
             //Find max num contiguous slots in marked cols
@@ -433,12 +437,12 @@ namespace ImageProcessing
                 if (!(circumPoint.xCoord >= minDropIndex && circumPoint.xCoord <= minDropIndex + maxContiguous))
                 {
                     pointsToRemove.Add(circumPoint);
-                    dropletMatrix[circumPoint.xCoord, circumPoint.yCoord] = false;
                 }
             }
             foreach (Coord circumPoint in pointsToRemove)
             {
                 circumferencePoints.Remove(circumPoint);
+                dropletMatrix[circumPoint.xCoord, circumPoint.yCoord] = false;
             }
 
             //Remove outlier non-droplet pixels from the dropletMatrix
@@ -452,7 +456,6 @@ namespace ImageProcessing
                     }
                 }
             }
-
         }
 
         public void PreprocessImage()
@@ -487,7 +490,6 @@ namespace ImageProcessing
                 centroidY /= circumferencePoints.Count;
             }
 
-            //Console.WriteLine("x: " + centroidX + " y: " + centroidY);
             realCentroidX = centroidX * cmPerPixel;
             realCentroidY = centroidY * cmPerPixel;
             
@@ -751,9 +753,6 @@ namespace ImageProcessing
                 }
                 
             }
-
-            //Store the location of the needle point in the class variable
-            needleBottomY = minY;
 
             int baseToNeedleInPixels = maxY - minY;
             if (baseToNeedleInCM == -1)

@@ -479,11 +479,18 @@ namespace ImageProcessing
             {
                 statusLabel.Text = "Stopped Processing";
                 runProgressBar.Value = 0;
+                enableRunButton();
             }
             else
             {
                 statusLabel.Text = "Processing Complete!";
                 runProgressBar.Value = runProgressBar.Maximum;
+
+                //Reset the save destination
+                saveDirectoryPath = "";
+                saveDestinationTextBox.Text = saveDirectoryPath;
+                setSaveDestination = false;
+                runButton.Enabled = false;
             }
 
             //Display any errors
@@ -492,12 +499,6 @@ namespace ImageProcessing
                 MessageBox.Show(e.Error.Message);
                 return;
             }
-
-            //Reset the save destination
-            saveDirectoryPath = "";
-            saveDestinationTextBox.Text = saveDirectoryPath;
-            setSaveDestination = false;
-            runButton.Enabled = false;
 
             //Change Stop button back into Run button
             runButton.Text = "Run";
